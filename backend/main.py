@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends, HTTPException, Header
+from fastapi import FastAPI, Depends, HTTPException, Header, UploadFile, File
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import AIMessage, HumanMessage
@@ -39,11 +39,22 @@ from pathlib import Path
 from system_prompt import conversation_prompt
 from mental_health_evaluation import evaluate_app
 from uuid import UUID, uuid4
+import whisper
+from gtts import gTTS
+import shutil
+from transformers import pipeline
+from fastapi.responses import FileResponse
 
 
 Base.metadata.create_all(bind=engine)
 
 load_dotenv()
+
+emotion_classifier = pipeline(
+    task="audio-classification", model="superb/wav2vec2-base-superb-er"
+)
+
+model = whisper.load_model("base")
 
 app = FastAPI()
 
@@ -129,21 +140,37 @@ graph = workflow.compile()
 sessions = {}
 
 @app.post("/therapy", response_model=ChatResponse)
-async def therapy(request: ChatRequest):
+async def therapy(file: UploadFile = File(...)):
     global running, camera_thread
 
     if not running:
         running = True
     camera_thread = threading.Thread(target=emotion_detection_loop)
     camera_thread.start()
-    if not request.message:
-        raise HTTPException(status_code=400, detail="Message is required")
+
+    file_location = f"audio_files/{file.filename}"
+
+    with open(file_location, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    result = emotion_classifier("audio_files/recording.webm")
+    emotion = result[0]["label"]
+    confidence = result[0]["score"]
+
+    audio_result = model.transcribe("audio_files/recording.webm")
 
     session_id = "default_session"
     if session_id not in sessions:
         sessions[session_id] = []
 
-    sessions[session_id].append(HumanMessage(content=request.message))
+    all_emotion_track = ""
+
+    with open(LOG_FILE, 'r') as f:
+        all_emotion_track = f.read()
+
+    print(all_emotion_track)
+
+    sessions[session_id].append(HumanMessage(content=f"text:{audio_result['text']} emotion:{emotion} confidence:{confidence} all_emotion_track:{all_emotion_track}"))
 
     result = graph.invoke({"messages": sessions[session_id]})
 
@@ -151,7 +178,13 @@ async def therapy(request: ChatRequest):
 
     sessions[session_id].append(AIMessage(content=ai_response))
     
-    return ChatResponse(response=ai_response)
+    tts = gTTS(text=ai_response, lang="en")
+
+    tts.save("audio_files/output.mp3")
+
+    return FileResponse(
+        path="audio_files/output.mp3", media_type="audio/mpeg", filename="output.mp3"
+    )
 
 @app.post('/camera-running-check')
 def camera_check():

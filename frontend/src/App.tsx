@@ -9,6 +9,7 @@ import Layout from "./components/Layout";
 import AttendedSessions from "./components/attended-sessions/AttendedSessions";
 import SessionPage from "./components/attended-sessions/SessionPage";
 import { ChatHistory } from "./components/history/ChatHistory";
+import Therapy from "./components/Therapy";
 
 const App = () => {
   return (
@@ -18,7 +19,7 @@ const App = () => {
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/chat/" element={<ChatSection />} />
-          <Route path="/therapy/" element={<Therapist />} />
+          <Route path="/therapy/" element={<Therapy />} />
           <Route path="/exercise/" element={<ExercisesSection />} />
           <Route path="/history/" element={<HistorySection />} />
           <Route path="/attended-sessions/" element={<AttendedSessions />} />
