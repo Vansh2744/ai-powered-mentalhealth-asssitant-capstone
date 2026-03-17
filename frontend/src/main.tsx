@@ -3,14 +3,11 @@ import "./index.css";
 import App from "./App.tsx";
 import { BrowserRouter } from "react-router-dom";
 import UserProvider from "./components/context/UserProvider.tsx";
-import LanguageProvider from "./components/context/LanguageProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <UserProvider>
-      <LanguageProvider>
         <App />
-      </LanguageProvider>
     </UserProvider>
   </BrowserRouter>,
 );

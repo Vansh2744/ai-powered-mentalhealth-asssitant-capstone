@@ -37,26 +37,75 @@ import pyttsx3
 from deepface import DeepFace
 from pathlib import Path
 from system_prompt import conversation_prompt
-from mental_health_evaluation import evaluate_app
 from uuid import UUID, uuid4
 import whisper
 from gtts import gTTS
 import shutil
 from transformers import pipeline
 from fastapi.responses import FileResponse
+import csv
+import datetime
+import os
+import base64
+import cv2
+import json
+import asyncio
+import numpy as np
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, Response
+
+from face_recognizer import FaceEmotionRecognizer
+from voice_recognizer import VoiceEmotionRecognizer
+from therapist import TherapistAgent
+from transcriber import Transcriber
 
 
 Base.metadata.create_all(bind=engine)
 
 load_dotenv()
 
-emotion_classifier = pipeline(
-    task="audio-classification", model="superb/wav2vec2-base-superb-er"
-)
+face_rec = FaceEmotionRecognizer()
+voice_rec = VoiceEmotionRecognizer()
+therapist = TherapistAgent()
+transcriber = Transcriber()
+LOG_FILE = "emotion_log.csv"
 
-model = whisper.load_model("base")
+last_audio: dict = {"bytes": None, "mime": "audio/webm"}
+last_response: dict = {"bytes": None}
 
-app = FastAPI()
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if not os.path.exists(LOG_FILE):
+        with open(LOG_FILE, "w", newline="") as f:
+            csv.writer(f).writerow(
+                [
+                    "timestamp",
+                    "transcript",
+                    "voice_emotion",
+                    "voice_confidence",
+                    "face_emotion",
+                    "face_confidence",
+                    "verdict",
+                    "therapist_response",
+                ]
+            )
+    print("Backend ready.")
+    yield
+    face_rec.stop()
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,50 +114,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-running = False
-camera_thread = None
-cap = None
-
-LOG_FILE = "emotion_log.txt"
-
-engine = pyttsx3.init()
-engine.setProperty("rate", 150)
-
-def log_emotion(emotion: str):
-    time_now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(LOG_FILE, "a") as f:
-        f.write(f"{time_now} - {emotion}\n")
-
-
-def emotion_detection_loop():
-    global running, cap
-
-    cap = cv2.VideoCapture(0)
-
-    if not cap.isOpened():
-        running = False
-        return
-
-    while running:
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        try:
-            result = DeepFace.analyze(
-                frame, actions=["emotion"], enforce_detection=False
-            )
-            emotion = result[0]["dominant_emotion"]
-        except Exception:
-            emotion = "No Face"
-
-        if emotion != "No Face":
-            log_emotion(emotion)
-
-    cap.release()
-    running = False
-
 
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
@@ -138,103 +143,6 @@ graph = workflow.compile()
 
 
 sessions = {}
-
-@app.post("/therapy", response_model=ChatResponse)
-async def therapy(file: UploadFile = File(...)):
-    global running, camera_thread
-
-    if not running:
-        running = True
-    camera_thread = threading.Thread(target=emotion_detection_loop)
-    camera_thread.start()
-
-    file_location = f"audio_files/{file.filename}"
-
-    with open(file_location, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    result = emotion_classifier("audio_files/recording.webm")
-    emotion = result[0]["label"]
-    confidence = result[0]["score"]
-
-    audio_result = model.transcribe("audio_files/recording.webm")
-
-    session_id = "default_session"
-    if session_id not in sessions:
-        sessions[session_id] = []
-
-    all_emotion_track = ""
-
-    with open(LOG_FILE, 'r') as f:
-        all_emotion_track = f.read()
-
-    print(all_emotion_track)
-
-    sessions[session_id].append(HumanMessage(content=f"text:{audio_result['text']} emotion:{emotion} confidence:{confidence} all_emotion_track:{all_emotion_track}"))
-
-    result = graph.invoke({"messages": sessions[session_id]})
-
-    ai_response = result["messages"][-1].content
-
-    sessions[session_id].append(AIMessage(content=ai_response))
-    
-    tts = gTTS(text=ai_response, lang="en")
-
-    tts.save("audio_files/output.mp3")
-
-    return FileResponse(
-        path="audio_files/output.mp3", media_type="audio/mpeg", filename="output.mp3"
-    )
-
-@app.post('/camera-running-check')
-def camera_check():
-    global running
-
-    running = False 
-
-    file_path = Path("emotion_log.txt")
-
-    if file_path.exists():
-        file_path.unlink()
-
-    return {"message": "camera is off"}
-
-@app.post("/stop")
-def stop_camera(response:TherapySessionResponse, db:Session = Depends(get_db)):
-    global running
-    running = False
-
-    file_path = 'emotion_log.txt'
-
-    file_content = ""
-
-    try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            content = file.read()
-            file_content = content
-    except FileNotFoundError:
-        return {"message":f"Error: The file '{file_path}' was not found."}
-    except Exception as e:
-        return {"message":f"An error occurred: {e}"}
-
-    Path(file_path).unlink()
-
-    result = evaluate_app.invoke({
-    "conversation": response.data,
-    "face_logs": file_content
-     })
-
-    db_session = SessionAttended(
-        classification=result["classification"],
-        evaluation=result["evaluation"],
-        user_id=response.user_id
-    )
-
-    db.add(db_session)
-    db.commit()
-    db.refresh(db_session)
-
-    return {"classification": result["classification"], "evaluation":result["evaluation"]}
 
 @app.post("/sign-up")
 def sign_up(user: UserCreate, db: Session = Depends(get_db)):
@@ -389,3 +297,162 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
+def save_log(transcript: str, voice: dict, face: dict, therapist_text: str) -> dict:
+    ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    v_emo = voice.get("dominant_emotion", "unknown")
+    v_conf = float(voice.get("confidence", 0))
+    f_emo = face.get("dominant_emotion", "no_face") if face else "no_face"
+    f_conf = float(face.get("emotions", {}).get(f_emo, 0)) if face else 0.0
+    verdict = v_emo if v_conf >= f_conf else f_emo
+
+    with open(LOG_FILE, "a", newline="") as f:
+        csv.writer(f).writerow(
+            [ts, transcript, v_emo, v_conf, f_emo, f_conf, verdict, therapist_text]
+        )
+
+    return {
+        "timestamp": ts,
+        "transcript": transcript,
+        "voice": {
+            "emotion": v_emo,
+            "confidence": v_conf,
+            "probabilities": voice.get("probabilities", {}),
+        },
+        "face": {
+            "emotion": f_emo,
+            "confidence": f_conf,
+            "emotions": face.get("emotions", {}) if face else {},
+        },
+        "verdict": verdict,
+    }
+
+
+# ── POST /analyze ─────────────────────────────────────────
+@app.post("/analyze")
+async def analyze(
+    audio: UploadFile = File(...)
+):
+    audio_bytes = await audio.read()
+    mime_type = audio.content_type or "audio/webm"
+    last_audio["bytes"] = audio_bytes
+    last_audio["mime"] = mime_type
+
+    # Transcribe — now returns (text, language)
+    transcript, language = transcriber.transcribe(audio_bytes, mime_type)
+
+    voice_result = voice_rec.analyze(audio_bytes)
+    face_result = face_rec.get_latest()
+    combined = save_log(transcript, voice_result, face_result, "")
+
+    therapy = therapist.respond(
+        transcript=transcript,
+        voice_emotion=combined["voice"]["emotion"],
+        voice_confidence=combined["voice"]["confidence"],
+        face_emotion=combined["face"]["emotion"],
+        face_confidence=combined["face"]["confidence"],
+        verdict=combined["verdict"],
+        language=language,  # ← pass detected language
+    )
+
+    last_response["bytes"] = therapy["audio_bytes"]
+    combined["therapist"] = {
+        "text": therapy["text"],
+        "audio_b64": therapy["audio_b64"],
+        "language": language,
+    }
+    combined["transcript"] = transcript
+    combined["language"] = language
+    return JSONResponse(content=combined)
+
+
+# ── GET /playback — user's voice ──────────────────────────
+@app.get("/playback")
+async def playback():
+    if not last_audio["bytes"]:
+        return Response(status_code=204)
+    return Response(
+        content=last_audio["bytes"],
+        media_type=last_audio["mime"],
+        headers={"Content-Disposition": "inline; filename=playback.webm"},
+    )
+
+
+# ── GET /response-audio — therapist TTS audio ────────────
+@app.get("/response-audio")
+async def response_audio():
+    if not last_response["bytes"]:
+        return Response(status_code=204)
+    return Response(
+        content=last_response["bytes"],
+        media_type="audio/mpeg",
+        headers={"Content-Disposition": "inline; filename=response.mp3"},
+    )
+
+
+# ── GET /history ──────────────────────────────────────────
+@app.get("/history")
+async def get_history():
+    records = []
+    try:
+        with open(LOG_FILE, newline="") as f:
+            for row in csv.DictReader(f):
+                records.append(row)
+    except FileNotFoundError:
+        pass
+    return records[-50:]
+
+
+# ── GET /clear-memory — reset therapist conversation ──────
+@app.post("/clear-memory")
+async def clear_memory():
+    therapist.clear_memory()
+    return {"status": "cleared"}
+
+
+# ── WebSocket /ws/face ────────────────────────────────────
+@app.websocket("/ws/face")
+async def ws_face(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            data = face_rec.get_latest()
+            await websocket.send_text(json.dumps(data, cls=NumpyEncoder))
+            await asyncio.sleep(0.5)
+    except WebSocketDisconnect:
+        pass
+
+
+# ── WebSocket /ws/camera ──────────────────────────────────
+@app.websocket("/ws/camera")
+async def ws_camera(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            frame = face_rec.get_latest_frame()
+            if frame is not None:
+                _, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
+                b64 = base64.b64encode(buf.tobytes()).decode("utf-8")
+                await websocket.send_text(json.dumps({"frame": b64}))
+            await asyncio.sleep(0.033)
+    except WebSocketDisconnect:
+        pass
+
+# ── POST /camera/start ────────────────────────────────────
+@app.post("/camera/start")
+async def camera_start():
+    if not face_rec.is_running():
+        face_rec.start()
+    return {"status": "started"}
+
+
+# ── POST /camera/stop ─────────────────────────────────────
+@app.post("/camera/stop")
+async def camera_stop():
+    face_rec.stop()
+    return {"status": "stopped"}
+
+
+# ── GET /camera/status ────────────────────────────────────
+@app.get("/camera/status")
+async def camera_status():
+    return {"running": face_rec.is_running()}

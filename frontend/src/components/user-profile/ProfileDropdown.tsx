@@ -12,32 +12,10 @@ import {
   SettingsIcon,
   UserIcon,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "../context/userContext";
-import { backendUrl } from "@/utils/backendUrl";
-import axios from "axios";
 
 export function ProfileDropdown() {
-  const navigate = useNavigate();
-  const { user, clearUser } = useCurrentUser();
-  const handleLogout = async () => {
-    try {
-      const { data } = await axios.post(`${backendUrl}/sign-out/`, {
-        email: user?.email,
-      });
-
-      console.log(data);
-
-      clearUser();
-
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-
-      navigate("/auth");
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const { logout } = useCurrentUser();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -59,7 +37,7 @@ export function ProfileDropdown() {
           Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+        <DropdownMenuItem variant="destructive" onClick={logout}>
           <LogOutIcon />
           Log out
         </DropdownMenuItem>

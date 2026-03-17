@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
 import AuthPage from "./components/AuthPage";
-import Therapist from "./components/Therapist";
 import { ChatSection } from "./components/chat/ChatSection";
 import { ExercisesSection } from "./components/exercises/ExercisesSection";
 import { HistorySection } from "./components/history/HistorySection";
@@ -10,13 +9,21 @@ import AttendedSessions from "./components/attended-sessions/AttendedSessions";
 import SessionPage from "./components/attended-sessions/SessionPage";
 import { ChatHistory } from "./components/history/ChatHistory";
 import Therapy from "./components/Therapy";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
     <div>
       <Routes>
         <Route path="/auth/" element={<AuthPage />} />
-        <Route element={<Layout />}>
+
+        <Route
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/" element={<HomePage />} />
           <Route path="/chat/" element={<ChatSection />} />
           <Route path="/therapy/" element={<Therapy />} />

@@ -1,10 +1,12 @@
 import { createContext, useContext } from "react";
-import { type CurrentUser } from "@/types";
+import { type CurrentUser } from "../../types";
 
 export const UserContext = createContext({
-  user: {} as CurrentUser | null,
+  user: null as CurrentUser | null,
+  loading: true,               // ✅ add this
   fetchCurrentUser: () => {},
-  clearUser: () => {}
+  clearUser: () => {},
+  logout: async () => {},
 });
 
 export const useCurrentUser = () => {

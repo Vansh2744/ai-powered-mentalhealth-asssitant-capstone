@@ -46,7 +46,7 @@ export default function AuthPage() {
         if (details.password !== details.confirmPassword) {
           console.log("Password and Confirm Password should be same");
         } else {
-          const res = await axios.post(`${backendUrl}/sign-up`, {
+          await axios.post(`${backendUrl}/sign-up`, {
             name: details.name,
             email: details.email,
             password: details.password,
@@ -63,7 +63,7 @@ export default function AuthPage() {
         localStorage.setItem("refreshToken", res.data.refresh_token);
 
         fetchCurrentUser();
-        navigate("/");
+        navigate("/chat");
       }
     } catch (error) {
       console.error(error);
