@@ -15,16 +15,13 @@ export default function TherapistResponse({ therapist, isLoading }: Props) {
   useEffect(() => {
     if (!therapist?.audio_b64) return;
 
-    // Revoke old URL
     if (audioUrl) URL.revokeObjectURL(audioUrl);
 
-    // Decode base64 MP3 → blob URL
     const bytes  = Uint8Array.from(atob(therapist.audio_b64), (c) => c.charCodeAt(0));
     const blob   = new Blob([bytes], { type: "audio/mpeg" });
     const url    = URL.createObjectURL(blob);
     setAudioUrl(url);
 
-    // Auto-play
     const audio  = new Audio(url);
     audioRef.current = audio;
     audio.onplay  = () => setPlaying(true);
@@ -54,7 +51,7 @@ export default function TherapistResponse({ therapist, isLoading }: Props) {
               style={{ animationDelay: `${i * 0.15}s` }} />
           ))}
         </div>
-        <span className="text-sm font-mono">Aria is thinking...</span>
+        <span className="text-sm font-mono">Therapist is thinking...</span>
       </div>
     </div>
   );
@@ -62,7 +59,7 @@ export default function TherapistResponse({ therapist, isLoading }: Props) {
   if (!therapist) return (
     <div className="bg-surface border border-white/5 rounded-2xl p-5 flex items-center
       justify-center min-h-[100px] text-slate-500 text-sm font-mono">
-      Aria will respond here after you speak
+      Therapist will respond here after you speak
     </div>
   );
 
@@ -76,7 +73,7 @@ export default function TherapistResponse({ therapist, isLoading }: Props) {
           <div className={`w-2.5 h-2.5 rounded-full ${playing
             ? "bg-cyan-400 animate-pulse" : "bg-slate-600"}`} />
           <span className="font-head font-bold text-sm tracking-widest text-cyan-400">
-            ARIA · THERAPIST
+            AI · THERAPIST
           </span>
         </div>
 

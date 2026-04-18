@@ -5,7 +5,7 @@ export function ResponseCard({
   therapist,
   loading,
   transcript,
-  language, 
+  language,
 }: {
   therapist: TherapistResult | null;
   loading: boolean;
@@ -56,7 +56,7 @@ export function ResponseCard({
             />
           ))}
         </div>
-        <span className="text-slate-400 text-sm">Aria is thinking...</span>
+        <span className="text-slate-400 text-sm">Therapist is thinking...</span>
       </div>
     );
 
@@ -66,7 +66,7 @@ export function ResponseCard({
         className="bg-surface border border-white/5 rounded-2xl p-6
       text-center text-slate-600 text-sm"
       >
-        Speak to hear Aria respond
+        Speak to hear Therapist respond
       </div>
     );
 
@@ -82,7 +82,7 @@ export function ResponseCard({
             ${playing ? "bg-cyan-400 animate-pulse" : "bg-slate-600"}`}
           />
           <span className="font-head font-bold text-xs tracking-widest text-cyan-400">
-            ARIA
+            THERAPIST
           </span>
           {/* Language badge — only shown when non-English */}
           {language &&

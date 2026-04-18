@@ -55,25 +55,6 @@ const items = [
 
 export function AppSidebar() {
   const navigate = useNavigate();
-  const { user, clearUser } = useCurrentUser();
-  const handleLogout = async () => {
-    try {
-      const { data } = await axios.post(`${backendUrl}/sign-out/`, {
-        email: user?.email,
-      });
-
-      console.log(data);
-
-      clearUser();
-
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-
-      navigate("/auth");
-    } catch (error) {
-      console.log(error);
-    }
-  };
   return (
     <Sidebar>
       <SidebarContent>

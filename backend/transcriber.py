@@ -22,12 +22,11 @@ class Transcriber:
             result = self.client.audio.transcriptions.create(
                 model="whisper-large-v3-turbo",
                 file=audio_file,
-                response_format="verbose_json",  # ← gives us language info
-                # NO language param — Whisper auto-detects
+                response_format="verbose_json",
             )
 
             transcript = result.text.strip()
-            language   = getattr(result, "language", "en")  # e.g. "en", "hi", "es"
+            language   = getattr(result, "language", "en")
             print(f"📝 Transcript ({language}): {transcript}")
             return transcript, language
 

@@ -33,7 +33,6 @@ import threading
 import cv2
 import threading
 import datetime
-import pyttsx3
 from deepface import DeepFace
 from pathlib import Path
 from system_prompt import conversation_prompt
@@ -60,6 +59,11 @@ from face_recognizer import FaceEmotionRecognizer
 from voice_recognizer import VoiceEmotionRecognizer
 from therapist import TherapistAgent
 from transcriber import Transcriber
+
+from exercises import EXERCISES
+from gtts import gTTS
+import io
+from fastapi import Request
 
 
 Base.metadata.create_all(bind=engine)
@@ -326,8 +330,6 @@ def save_log(transcript: str, voice: dict, face: dict, therapist_text: str) -> d
         "verdict": verdict,
     }
 
-
-# ── POST /analyze ─────────────────────────────────────────
 @app.post("/analyze")
 async def analyze(
     audio: UploadFile = File(...)
@@ -337,7 +339,6 @@ async def analyze(
     last_audio["bytes"] = audio_bytes
     last_audio["mime"] = mime_type
 
-    # Transcribe — now returns (text, language)
     transcript, language = transcriber.transcribe(audio_bytes, mime_type)
 
     voice_result = voice_rec.analyze(audio_bytes)
@@ -365,7 +366,6 @@ async def analyze(
     return JSONResponse(content=combined)
 
 
-# ── GET /playback — user's voice ──────────────────────────
 @app.get("/playback")
 async def playback():
     if not last_audio["bytes"]:
@@ -377,7 +377,6 @@ async def playback():
     )
 
 
-# ── GET /response-audio — therapist TTS audio ────────────
 @app.get("/response-audio")
 async def response_audio():
     if not last_response["bytes"]:
@@ -389,7 +388,7 @@ async def response_audio():
     )
 
 
-# ── GET /history ──────────────────────────────────────────
+
 @app.get("/history")
 async def get_history():
     records = []
@@ -402,14 +401,12 @@ async def get_history():
     return records[-50:]
 
 
-# ── GET /clear-memory — reset therapist conversation ──────
 @app.post("/clear-memory")
 async def clear_memory():
     therapist.clear_memory()
     return {"status": "cleared"}
 
 
-# ── WebSocket /ws/face ────────────────────────────────────
 @app.websocket("/ws/face")
 async def ws_face(websocket: WebSocket):
     await websocket.accept()
@@ -422,7 +419,7 @@ async def ws_face(websocket: WebSocket):
         pass
 
 
-# ── WebSocket /ws/camera ──────────────────────────────────
+
 @app.websocket("/ws/camera")
 async def ws_camera(websocket: WebSocket):
     await websocket.accept()
@@ -437,7 +434,7 @@ async def ws_camera(websocket: WebSocket):
     except WebSocketDisconnect:
         pass
 
-# ── POST /camera/start ────────────────────────────────────
+
 @app.post("/camera/start")
 async def camera_start():
     if not face_rec.is_running():
@@ -445,14 +442,38 @@ async def camera_start():
     return {"status": "started"}
 
 
-# ── POST /camera/stop ─────────────────────────────────────
 @app.post("/camera/stop")
 async def camera_stop():
     face_rec.stop()
     return {"status": "stopped"}
 
 
-# ── GET /camera/status ────────────────────────────────────
 @app.get("/camera/status")
 async def camera_status():
     return {"running": face_rec.is_running()}
+
+@app.get("/exercises")
+async def get_exercises():
+    return list(EXERCISES.values())
+
+
+@app.post("/exercises/tts")
+async def exercise_tts(request: Request):
+    body = await request.json()
+    text = body.get("text", "")
+    lang = body.get("lang", "en")
+    if not text:
+        return Response(status_code=400)
+    try:
+        tts = gTTS(text=text, lang=lang, slow=False)
+        buf = io.BytesIO()
+        tts.write_to_fp(buf)
+        buf.seek(0)
+        return Response(
+            content=buf.read(),
+            media_type="audio/mpeg",
+            headers={"Cache-Control": "no-cache"},
+        )
+    except Exception as e:
+        print(f"[Exercise TTS error] {e}")
+        return Response(status_code=500)

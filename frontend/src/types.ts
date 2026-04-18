@@ -44,3 +44,23 @@ export interface CurrentUser {
   id: string;
   email: string;
 }
+
+export interface ExerciseStep {
+  phase:       string;
+  duration:    number;
+  instruction: string;
+}
+
+export interface Exercise {
+  id:       string;
+  title:    string;
+  subtitle: string;
+  icon:     string;
+  color:    string;
+  duration: string;
+  target:   string[];
+  steps:    ExerciseStep[];
+  rounds:   number;
+  intro:    string;
+  outro:    string;
+}

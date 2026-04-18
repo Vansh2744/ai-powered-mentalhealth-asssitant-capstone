@@ -99,7 +99,7 @@ export default function Therapy() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            Aria
+            Therapist
           </h1>
         </div>
 
