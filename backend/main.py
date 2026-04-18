@@ -29,19 +29,11 @@ from auth import (
 )
 from sqlalchemy.orm import Session
 from db import engine, Base
-import threading
 import cv2
-import threading
 import datetime
-from deepface import DeepFace
-from pathlib import Path
 from system_prompt import conversation_prompt
-from uuid import UUID, uuid4
-import whisper
+from uuid import UUID
 from gtts import gTTS
-import shutil
-from transformers import pipeline
-from fastapi.responses import FileResponse
 import csv
 import datetime
 import os
@@ -111,9 +103,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        FRONTEND_URL,           # ← production frontend URL
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
