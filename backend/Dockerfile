@@ -17,6 +17,7 @@ RUN apt-get clean && \
         gcc \
         g++ \
         curl \
+        libargon2-dev \       
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/*
 
