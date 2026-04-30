@@ -13,7 +13,6 @@ from schemas import (
     UserLogout,
     UserResponse,
     RefreshToken,
-    TherapySessionResponse,
     ChatRequest,
     ChatResponse,
     MessageSchema
@@ -103,15 +102,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        FRONTEND_URL,           # ← production frontend URL
-    ],
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -295,10 +288,6 @@ def get_history(session_id: UUID, db:Session = Depends(get_db)):
 
     return messages
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-
 def save_log(transcript: str, voice: dict, face: dict, therapist_text: str) -> dict:
     ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     v_emo = voice.get("dominant_emotion", "unknown")
@@ -475,3 +464,7 @@ async def exercise_tts(request: Request):
     except Exception as e:
         print(f"[Exercise TTS error] {e}")
         return Response(status_code=500)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

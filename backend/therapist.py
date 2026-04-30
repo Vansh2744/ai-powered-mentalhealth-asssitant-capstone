@@ -10,7 +10,6 @@ from system_prompt import SYSTEM_PROMPT
 
 load_dotenv()
 
-# gTTS language codes
 GTTS_LANG_MAP = {
     "en": "en",
     "hi": "hi",

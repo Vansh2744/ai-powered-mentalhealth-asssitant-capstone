@@ -18,7 +18,7 @@ class VoiceEmotionRecognizer:
         self._load_model()
 
     def _load_model(self):
-        print("🔄 Loading voice emotion model...")
+        print("Loading voice emotion model...")
         try:
             self.classifier = pipeline(
                 task="audio-classification",
@@ -26,9 +26,9 @@ class VoiceEmotionRecognizer:
                 device=-1,
                 framework="pt",
             )
-            print("✅ Voice model ready.")
+            print("Voice model ready.")
         except Exception as e:
-            print(f"⚠️  Model failed: {e}. Using heuristic fallback.")
+            print(f"Model failed: {e}. Using heuristic fallback.")
             self.classifier = None
 
     def analyze(self, audio_bytes: bytes) -> dict:
@@ -46,13 +46,10 @@ class VoiceEmotionRecognizer:
         try:
             from pydub import AudioSegment
 
-            # Let pydub auto-detect format via ffmpeg
             seg = AudioSegment.from_file(io.BytesIO(audio_bytes))
 
-            # Convert to mono, 16kHz
             seg = seg.set_channels(1).set_frame_rate(self.sample_rate)
 
-            # Export to raw PCM bytes and convert to float32
             raw = seg.raw_data
             samples = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
             samples /= 32768.0
@@ -60,7 +57,6 @@ class VoiceEmotionRecognizer:
 
         except Exception as e:
             print(f"[Audio decode error] {e}")
-            # Last resort: try librosa
             try:
                 audio, _ = librosa.load(
                     io.BytesIO(audio_bytes),

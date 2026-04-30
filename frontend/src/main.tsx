@@ -7,7 +7,7 @@ import UserProvider from "./components/context/UserProvider.tsx";
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <UserProvider>
-        <App />
+      <App />
     </UserProvider>
   </BrowserRouter>,
 );

@@ -3,10 +3,9 @@ import {
   Phone,
   Leaf,
   History,
-  Settings,
   Heart,
-  LogOutIcon,
   PhoneCall,
+  Clock,
 } from "lucide-react";
 
 import {
@@ -19,11 +18,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { backendUrl } from "@/utils/backendUrl";
-import { useCurrentUser } from "../context/userContext";
 
 const items = [
   {
@@ -47,9 +42,9 @@ const items = [
     icon: History,
   },
   {
-    title: "Attended Sessions",
-    url: "/attended-sessions/",
-    icon: PhoneCall,
+    title: "Set Exercise Reminder",
+    url: "/set-reminder/",
+    icon: Clock,
   },
 ];
 

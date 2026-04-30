@@ -1,6 +1,5 @@
 import cv2
 import threading
-import numpy as np
 from deepface import DeepFace
 
 
@@ -23,7 +22,7 @@ class FaceEmotionRecognizer:
         self._running = True
         self._thread = threading.Thread(target=self._loop, daemon=True)
         self._thread.start()
-        print("📷 Camera started.")
+        print("Camera started.")
 
     def stop(self):
         """Stop webcam and release resources."""
@@ -36,7 +35,7 @@ class FaceEmotionRecognizer:
         with self._lock:
             self._latest_frame = None
             self._latest_result = {}
-        print("📷 Camera stopped.")
+        print("Camera stopped.")
 
     def is_running(self) -> bool:
         return self._running
