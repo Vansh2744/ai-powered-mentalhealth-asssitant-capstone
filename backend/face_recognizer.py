@@ -1,84 +1,97 @@
 import cv2
 import threading
-from deepface import DeepFace
+from fer import FER
 
 
 class FaceEmotionRecognizer:
     def __init__(self):
-        self._lock = threading.Lock()
-        self._latest_result = {}
-        self._latest_frame = None
-        self._cap = None
-        self._running = False
-        self._thread = None
+        self.lock = threading.Lock()
+        self.cap = None
+        self.frame = None
+        self.result = {}
+        self.running = False
+        self.thread = None
+
+        self.detector = FER(mtcnn=False)
 
     def start(self):
-        """Start webcam only when called — not on server startup."""
-        if self._running:
+        """Start webcam"""
+        if self.running:
             return
-        self._cap = cv2.VideoCapture(0)
-        if not self._cap.isOpened():
+
+        self.cap = cv2.VideoCapture(0)
+
+        if not self.cap.isOpened():
             raise RuntimeError("Cannot open webcam")
-        self._running = True
-        self._thread = threading.Thread(target=self._loop, daemon=True)
-        self._thread.start()
-        print("Camera started.")
+
+        self.running = True
+        self.thread = threading.Thread(target=self._loop, daemon=True)
+        self.thread.start()
+
+        print("Camera Started")
 
     def stop(self):
-        """Stop webcam and release resources."""
-        if not self._running:
-            return
-        self._running = False
-        if self._cap:
-            self._cap.release()
-            self._cap = None
-        with self._lock:
-            self._latest_frame = None
-            self._latest_result = {}
-        print("Camera stopped.")
+        """Stop webcam"""
+        self.running = False
 
-    def is_running(self) -> bool:
-        return self._running
+        if self.cap:
+            self.cap.release()
+            self.cap = None
+
+        with self.lock:
+            self.frame = None
+            self.result = {}
+
+        print("Camera Stopped")
+
+    def is_running(self):
+        return self.running
 
     def _loop(self):
-        frame_count = 0
-        while self._running:
-            if not self._cap or not self._cap.isOpened():
+        count = 0
+
+        while self.running:
+            if not self.cap:
                 break
-            ret, frame = self._cap.read()
+
+            ret, frame = self.cap.read()
+
             if not ret:
                 continue
-            with self._lock:
-                self._latest_frame = frame.copy()
-            if frame_count % 5 == 0:
-                result = self._analyze(frame)
-                if result:
-                    with self._lock:
-                        self._latest_result = result
-            frame_count += 1
 
-    def _analyze(self, frame) -> dict:
-        try:
-            analyses = DeepFace.analyze(
-                frame,
-                actions=["emotion"],
-                enforce_detection=False,
-                silent=True,
-            )
-            if not isinstance(analyses, list):
-                analyses = [analyses]
-            face = analyses[0]
-            return {
-                "dominant_emotion": face["dominant_emotion"],
-                "emotions": {k: round(float(v), 2) for k, v in face["emotion"].items()},
-            }
-        except Exception:
-            return {}
+            frame = cv2.resize(frame, (320, 240))
 
-    def get_latest(self) -> dict:
-        with self._lock:
-            return dict(self._latest_result)
+            with self.lock:
+                self.frame = frame.copy()
+
+            if count % 15 == 0:
+                try:
+                    faces = self.detector.detect_emotions(frame)
+
+                    if faces:
+                        emotions = faces[0]["emotions"]
+                        dominant = max(emotions, key=emotions.get)
+
+                        with self.lock:
+                            self.result = {
+                                "dominant_emotion": dominant,
+                                "emotions": {
+                                    k: round(v, 2)
+                                    for k, v in emotions.items()
+                                }
+                            }
+
+                except:
+                    pass
+
+            count += 1
+
+    def get_latest(self):
+        """Get latest emotion result"""
+        with self.lock:
+            return self.result.copy()
 
     def get_latest_frame(self):
-        with self._lock:
-            return self._latest_frame.copy() if self._latest_frame is not None else None
+        """Get latest camera frame"""
+        with self.lock:
+            return self.frame.copy() if self.frame is not None else None
