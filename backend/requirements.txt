@@ -28,6 +28,7 @@ safetensors
 
 opencv-python-headless
 fer==22.4.0
+pandas==2.2.3
 tensorflow-cpu
 
 ffmpeg-python
