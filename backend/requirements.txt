@@ -6,7 +6,7 @@ python-dotenv
 sqlalchemy
 psycopg2-binary
 
-pwdlib
+pwdlib[argon2]
 pyjwt
 
 groq
