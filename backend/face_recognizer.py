@@ -12,6 +12,7 @@ class FaceEmotionRecognizer:
         self.running = False
         self.thread = None
 
+
         self.detector = FER(mtcnn=False)
 
     def start(self):

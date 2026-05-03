@@ -61,11 +61,28 @@ Base.metadata.create_all(bind=engine)
 
 load_dotenv()
 
-face_rec = FaceEmotionRecognizer()
-voice_rec = VoiceEmotionRecognizer()
-therapist = TherapistAgent()
-transcriber = Transcriber()
+face_rec = None
+voice_rec = None
+therapist = None
+transcriber = None
 LOG_FILE = "emotion_log.csv"
+
+def get_services():
+    global face_rec, voice_rec, therapist, transcriber
+
+    if face_rec is None:
+        face_rec = FaceEmotionRecognizer()
+
+    if voice_rec is None:
+        voice_rec = VoiceEmotionRecognizer()
+
+    if therapist is None:
+        therapist = TherapistAgent()
+
+    if transcriber is None:
+        transcriber = Transcriber()
+
+    return face_rec, voice_rec, therapist, transcriber
 
 last_audio: dict = {"bytes": None, "mime": "audio/webm"}
 last_response: dict = {"bytes": None}
@@ -326,8 +343,9 @@ async def analyze(
     last_audio["bytes"] = audio_bytes
     last_audio["mime"] = mime_type
 
-    transcript, language = transcriber.transcribe(audio_bytes, mime_type)
+    face_rec, voice_rec, therapist, transcriber = get_services()
 
+    transcript, language = transcriber.transcribe(audio_bytes, mime_type)
     voice_result = voice_rec.analyze(audio_bytes)
     face_result = face_rec.get_latest()
     combined = save_log(transcript, voice_result, face_result, "")
@@ -397,46 +415,60 @@ async def clear_memory():
 @app.websocket("/ws/face")
 async def ws_face(websocket: WebSocket):
     await websocket.accept()
+
+    face_rec, _, _, _ = get_services()
+
     try:
         while True:
             data = face_rec.get_latest()
             await websocket.send_text(json.dumps(data, cls=NumpyEncoder))
             await asyncio.sleep(0.5)
+
     except WebSocketDisconnect:
         pass
-
 
 
 @app.websocket("/ws/camera")
 async def ws_camera(websocket: WebSocket):
     await websocket.accept()
+
+    face_rec, _, _, _ = get_services()
+
     try:
         while True:
             frame = face_rec.get_latest_frame()
+
             if frame is not None:
-                _, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
-                b64 = base64.b64encode(buf.tobytes()).decode("utf-8")
+                _, buf = cv2.imencode(".jpg", frame)
+                b64 = base64.b64encode(buf.tobytes()).decode()
                 await websocket.send_text(json.dumps({"frame": b64}))
-            await asyncio.sleep(0.033)
+
+            await asyncio.sleep(0.03)
+
     except WebSocketDisconnect:
         pass
 
 
 @app.post("/camera/start")
 async def camera_start():
+    face_rec, _, _, _ = get_services()
+
     if not face_rec.is_running():
         face_rec.start()
+
     return {"status": "started"}
 
 
 @app.post("/camera/stop")
 async def camera_stop():
+    face_rec, _, _, _ = get_services()
     face_rec.stop()
     return {"status": "stopped"}
 
 
 @app.get("/camera/status")
 async def camera_status():
+    face_rec, _, _, _ = get_services()
     return {"running": face_rec.is_running()}
 
 @app.get("/exercises")
