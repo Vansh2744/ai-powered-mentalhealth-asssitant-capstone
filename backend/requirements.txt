@@ -22,4 +22,4 @@ fer>=22.5.1
 opencv-python-headless>=4.8.0
 
 python-dotenv>=1.0.0
-numpy>=1.24.0                (~200 MB)
+numpy==1.24.4
