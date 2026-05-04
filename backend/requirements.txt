@@ -1,37 +1,25 @@
-# ── Web framework ─────────────────────────────────────────────────────────────
 fastapi>=0.115.0
 uvicorn[standard]>=0.30.0
 python-multipart>=0.0.9
 
-# ── Database ──────────────────────────────────────────────────────────────────
 sqlalchemy>=2.0.0
 psycopg2-binary>=2.9.0
 
-# ── Auth ──────────────────────────────────────────────────────────────────────
 pyjwt>=2.8.0
 pwdlib[argon2]>=0.2.0
 
-# ── AI / LLM ──────────────────────────────────────────────────────────────────
+langchain
 langchain-groq>=0.2.0
+langchain_classic
 langchain-core>=0.3.0
 groq>=0.13.0
 
-# ── Audio processing ──────────────────────────────────────────────────────────
 pydub>=0.25.1
 librosa>=0.10.0
 gtts>=2.5.0
 
-# ── Face emotion ──────────────────────────────────────────────────────────────
 fer>=22.5.1
 opencv-python-headless>=4.8.0
 
-# ── Utilities ─────────────────────────────────────────────────────────────────
 python-dotenv>=1.0.0
-numpy>=1.24.0
-
-# ── REMOVED (saves ~400+ MB) ──────────────────────────────────────────────────
-# transformers            (~500 MB with torch)
-# torch                   (~700 MB)
-# langgraph               (~30 MB, replaced by direct chain)
-# langchain-classic       (outdated package)
-# mtcnn                   (~200 MB)
+numpy>=1.24.0                (~200 MB)
