@@ -1,68 +1,67 @@
 import io
 import numpy as np
-from transformers import pipeline
-from pydub import AudioSegment
+
+try:
+    import librosa
+    LIBROSA_OK = True
+except ImportError:
+    LIBROSA_OK = False
+
+try:
+    from pydub import AudioSegment
+    PYDUB_OK = True
+except ImportError:
+    PYDUB_OK = False
 
 
 class VoiceEmotionRecognizer:
-    def __init__(self, sr=16000):
+    def __init__(self, sr: int = 16000):
         self.sr = sr
-        self.model = None
 
-        try:
-            self.model = pipeline(
-                "audio-classification",
-                model="superb/wav2vec2-base-superb-er",
-                device=-1
-            )
-        except:
-            pass
-
-    def analyze(self, audio_bytes):
+    def analyze(self, audio_bytes: bytes) -> dict:
         audio = self._load(audio_bytes)
+        audio = audio[: self.sr * 4]
+        return self._classify(audio)
 
-        # use only first 3 sec to save CPU/RAM
-        audio = audio[: self.sr * 3]
-
-        if self.model:
+    def _load(self, audio_bytes: bytes) -> np.ndarray:
+        if PYDUB_OK:
             try:
-                pred = self.model(
-                    {"array": audio, "sampling_rate": self.sr},
-                    top_k=1
-                )[0]
+                seg = AudioSegment.from_file(io.BytesIO(audio_bytes))
+                seg = seg.set_channels(1).set_frame_rate(self.sr)
+                data = np.frombuffer(seg.raw_data, dtype=np.int16)
+                return data.astype(np.float32) / 32768.0
+            except Exception:
+                pass
+        return np.zeros(self.sr, dtype=np.float32)
 
-                return {
-                    "dominant_emotion": pred["label"].lower(),
-                    "confidence": round(pred["score"] * 100, 2)
-                }
+    def _classify(self, audio: np.ndarray) -> dict:
+        if len(audio) < 100:
+            return {"dominant_emotion": "neutral", "confidence": 50}
 
-            except:
+        energy   = float(np.mean(np.abs(audio)))
+        zcr      = float(np.mean(np.abs(np.diff(np.sign(audio)))) / 2)
+
+        centroid = None
+        if LIBROSA_OK:
+            try:
+                sc = librosa.feature.spectral_centroid(y=audio, sr=self.sr)
+                centroid = float(np.mean(sc))
+            except Exception:
                 pass
 
-        return self._fallback(audio)
 
-    def _load(self, audio_bytes):
-        try:
-            audio = AudioSegment.from_file(io.BytesIO(audio_bytes))
-            audio = audio.set_channels(1).set_frame_rate(self.sr)
-
-            data = np.frombuffer(audio.raw_data, dtype=np.int16)
-            return data.astype(np.float32) / 32768.0
-
-        except:
-            return np.zeros(self.sr, dtype=np.float32)
-
-    def _fallback(self, audio):
-        energy = np.mean(np.abs(audio))
-
-        if energy > 0.12:
-            emo = "happy"
-        elif energy < 0.03:
-            emo = "sad"
+        if energy < 0.025:
+            emotion, confidence = "sad", 62
+        elif zcr > 0.18 and energy > 0.06:
+            emotion, confidence = "fearful", 60
+        elif energy > 0.15:
+            if centroid and centroid > 3000:
+                emotion, confidence = "happy", 63
+            else:
+                emotion, confidence = "angry", 61
+        elif energy > 0.06:
+            emotion, confidence = "neutral", 65
         else:
-            emo = "neutral"
+            emotion, confidence = "calm", 60
 
-        return {
-            "dominant_emotion": emo,
-            "confidence": 55
-        }
+        return {"dominant_emotion": emotion, "confidence": confidence}

@@ -13,27 +13,7 @@ export default function Therapy() {
   const [cameraConnected, setCameraConnected] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:8000/camera/start", { method: "POST" });
-
-    const handleUnload = () =>
-      navigator.sendBeacon("http://localhost:8000/camera/stop");
-
-    const handleVisibility = () => {
-      if (document.visibilityState === "hidden") {
-        navigator.sendBeacon("http://localhost:8000/camera/stop");
-      } else {
-        fetch("http://localhost:8000/camera/start", { method: "POST" });
-      }
-    };
-
-    window.addEventListener("beforeunload", handleUnload);
-    document.addEventListener("visibilitychange", handleVisibility);
-
-    return () => {
-      navigator.sendBeacon("http://localhost:8000/camera/stop");
-      window.removeEventListener("beforeunload", handleUnload);
-      document.removeEventListener("visibilitychange", handleVisibility);
-    };
+    return () => {};
   }, []);
 
   const handleResult = (r: CombinedResult) => {
@@ -51,7 +31,6 @@ export default function Therapy() {
           "linear-gradient(145deg, #f0f9ff 0%, #faf5ff 50%, #f0fdf4 100%)",
       }}
     >
-      {/* ── Ambient blobs ── */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div
           className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full
@@ -65,7 +44,6 @@ export default function Therapy() {
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
           w-[350px] h-[350px] rounded-full bg-teal-200/20 blur-[80px]"
         />
-        {/* Dot grid */}
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{
@@ -75,8 +53,6 @@ export default function Therapy() {
           }}
         />
       </div>
-
-      {/* ── Header ── */}
       <header
         className="relative w-full max-w-xl px-6 pt-10 pb-2 flex items-start
         justify-between"
@@ -102,8 +78,6 @@ export default function Therapy() {
             Therapist
           </h1>
         </div>
-
-        {/* Live pill */}
         <div
           className={`mt-2 flex items-center gap-2 px-3 py-1.5 rounded-full
           border text-[0.6rem] tracking-widest uppercase transition-all duration-700
@@ -120,15 +94,10 @@ export default function Therapy() {
           {cameraConnected ? "Live" : "Connecting"}
         </div>
       </header>
-
-      {/* ── Divider ── */}
       <div className="w-full max-w-xl px-6 mb-6">
         <div className="h-px bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent" />
       </div>
-
-      {/* ── Main ── */}
       <main className="relative w-full max-w-xl flex flex-col gap-5 px-6 pb-16">
-        {/* Camera card */}
         <div className="relative">
           <div
             className={`absolute -inset-[1px] rounded-2xl transition-all duration-700
@@ -143,8 +112,6 @@ export default function Therapy() {
             backdrop-blur-sm shadow-xl shadow-cyan-100/50"
           >
             <CameraFeed onConnected={setCameraConnected} />
-
-            {/* Connecting overlay */}
             {!cameraConnected && (
               <div
                 className="absolute inset-0 flex flex-col items-center justify-center
@@ -181,8 +148,6 @@ export default function Therapy() {
             )}
           </div>
         </div>
-
-        {/* Recorder or waiting */}
         {cameraConnected ? (
           <div className="flex flex-col items-center gap-2">
             <p className="text-[0.6rem] text-slate-400 tracking-[0.2em] uppercase">
@@ -209,8 +174,6 @@ export default function Therapy() {
             </span>
           </div>
         )}
-
-        {/* Response card */}
         <div
           className={`transition-all duration-500
           ${therapist || loading ? "opacity-100 translate-y-0" : "opacity-70 translate-y-1"}`}

@@ -1,41 +1,37 @@
-fastapi
-uvicorn[standard]
-python-multipart
-python-dotenv
+# ── Web framework ─────────────────────────────────────────────────────────────
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
 
-sqlalchemy
-psycopg2-binary
+# ── Database ──────────────────────────────────────────────────────────────────
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
 
-pwdlib[argon2]
-pyjwt
+# ── Auth ──────────────────────────────────────────────────────────────────────
+pyjwt>=2.8.0
+pwdlib[argon2]>=0.2.0
 
-groq
-langchain
-langchain-core
-langchain-groq
-langgraph
+# ── AI / LLM ──────────────────────────────────────────────────────────────────
+langchain-groq>=0.2.0
+langchain-core>=0.3.0
+groq>=0.13.0
 
-gtts
+# ── Audio processing ──────────────────────────────────────────────────────────
+pydub>=0.25.1
+librosa>=0.10.0
+gtts>=2.5.0
 
-numpy
-pydub
+# ── Face emotion ──────────────────────────────────────────────────────────────
+fer>=22.5.1
+opencv-python-headless>=4.8.0
 
-transformers
-torch
-torchaudio
-accelerate
-safetensors
+# ── Utilities ─────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+numpy>=1.24.0
 
-opencv-python-headless
-fer==22.4.0
-pandas==2.2.3
-tensorflow-cpu
-
-ffmpeg-python
-imageio
-imageio-ffmpeg
-moviepy
-
-requests
-httpx
-orjson
+# ── REMOVED (saves ~400+ MB) ──────────────────────────────────────────────────
+# transformers            (~500 MB with torch)
+# torch                   (~700 MB)
+# langgraph               (~30 MB, replaced by direct chain)
+# langchain-classic       (outdated package)
+# mtcnn                   (~200 MB)
