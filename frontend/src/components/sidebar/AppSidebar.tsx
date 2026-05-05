@@ -6,6 +6,8 @@ import {
   Heart,
   PhoneCall,
   Clock,
+  ChartNoAxesCombined,
+  ChartSpline,
 } from "lucide-react";
 
 import {
@@ -45,6 +47,21 @@ const items = [
     title: "Set Exercise Reminder",
     url: "/set-reminder/",
     icon: Clock,
+  },
+  {
+    title: "Session Summary",
+    url: "/session-summary/",
+    icon: PhoneCall,
+  },
+  {
+    title: "Mood Timeline",
+    url: "/moodtimeline/",
+    icon: ChartNoAxesCombined,
+  },
+  {
+    title: "Analytics Dashboard",
+    url: "/analytics/",
+    icon: ChartSpline,
   },
 ];
 

@@ -10,8 +10,13 @@ import { ChatHistory } from "./components/history/ChatHistory";
 import Therapy from "./components/Therapy";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Exercises from "./components/exercises/Exercises";
+import SessionSummaryPage from "./components/SessionSummaryPage";
+import { useCurrentUser } from "./components/context/userContext";
+import MoodTimeline from "./components/MoodTimeline";
+import AnalyticsDashboard from "./components/history/Analyticsdashboard";
 
 const App = () => {
+  const { user } = useCurrentUser();
   return (
     <div>
       <Routes>
@@ -32,6 +37,18 @@ const App = () => {
           <Route path="/attended-sessions/" element={<AttendedSessions />} />
           <Route path="/session/:sessionId" element={<SessionPage />} />
           <Route path="/chat-history/:sessionId" element={<ChatHistory />} />
+          <Route
+            path="/session-summary"
+            element={<SessionSummaryPage userId={user?.id} />}
+          />
+          <Route
+            path="/moodtimeline"
+            element={<MoodTimeline userId={user?.id} />}
+          />
+          <Route
+            path="/analytics"
+            element={<AnalyticsDashboard userId={user?.id} />}
+          />
         </Route>
       </Routes>
     </div>

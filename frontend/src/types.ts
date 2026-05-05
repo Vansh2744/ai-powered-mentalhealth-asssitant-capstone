@@ -19,6 +19,18 @@ export interface TherapistResult {
   audio_b64: string;
 }
 
+export interface Helpline {
+  name: string;
+  number: string;
+  available: string;
+}
+
+export interface CrisisData {
+  tier: number;
+  keyword: string;
+  helplines: Helpline[];
+}
+
 export interface CombinedResult {
   timestamp: string;
   transcript: string;
@@ -27,6 +39,7 @@ export interface CombinedResult {
   verdict: string;
   therapist: TherapistResult;
   language: string;
+  crisis?: CrisisData | null;
 }
 
 export interface HistoryRecord {

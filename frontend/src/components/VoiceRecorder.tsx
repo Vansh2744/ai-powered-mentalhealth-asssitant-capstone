@@ -1,14 +1,16 @@
 import { useRef, useState } from "react";
 import type { CombinedResult } from "../types";
+import { backendUrl } from "@/utils/backendUrl";
 
 interface Props {
   onResult:  (r: CombinedResult) => void;
   onLoading: (v: boolean) => void;
+  userId?:   string;   // ← added
 }
 
 type State = "idle" | "recording" | "analyzing";
 
-export default function VoiceRecorder({ onResult, onLoading }: Props) {
+export default function VoiceRecorder({ onResult, onLoading, userId }: Props) {
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState("");
   const mediaRef  = useRef<MediaRecorder | null>(null);
@@ -41,7 +43,16 @@ export default function VoiceRecorder({ onResult, onLoading }: Props) {
     try {
       const form = new FormData();
       form.append("audio", blob, "recording.webm");
-      const res  = await fetch("http://localhost:8000/analyze", { method: "POST", body: form });
+
+      // Pass userId so backend can save EmotionLog to DB
+      const headers: HeadersInit = {};
+      if (userId) headers["X-User-Id"] = userId;
+
+      const res = await fetch(`${backendUrl}/analyze`, {
+        method: "POST",
+        headers,
+        body: form,
+      });
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       onResult(await res.json());
     } catch (e: any) {
