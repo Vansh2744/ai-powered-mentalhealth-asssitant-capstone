@@ -1,22 +1,5 @@
-"""
-cron.py — Exercise reminder cron job only.
-
-Render Cron Job schedule: * * * * *  (every minute — we filter by time inside)
-Or more efficiently:       0 * * * *  (every hour)
-
-Command: python cron.py
-
-How it works:
-  - Runs every minute (or hour)
-  - Fetches all enabled reminders from DB
-  - Sends email to users whose reminder_time matches current UTC time (HH:MM)
-  - Skips users who already got a reminder email in the last 23 hours
-    (stored in a simple sent_today set using date string)
-"""
-
 import os, sys, datetime
 from dotenv import load_dotenv
-import pytz
 from datetime import timedelta
 
 load_dotenv()
@@ -72,7 +55,4 @@ def run_reminder_job():
 import time
 
 if __name__ == "__main__":
-    print("🚀 Cron started (running every minute)")
-    while True:
-        run_reminder_job()
-        time.sleep(60)
+    run_reminder_job()
