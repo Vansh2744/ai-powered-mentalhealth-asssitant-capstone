@@ -427,10 +427,12 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "python-multipart" },
     { name = "pyttsx3" },
+    { name = "pytz" },
     { name = "pyyaml" },
     { name = "regex" },
     { name = "requests" },
     { name = "requests-toolbelt" },
+    { name = "resend" },
     { name = "retina-face" },
     { name = "safetensors" },
     { name = "scikit-learn" },
@@ -561,10 +563,12 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "python-multipart", specifier = ">=0.0.9" },
     { name = "pyttsx3", specifier = ">=2.99" },
+    { name = "pytz", specifier = ">=2026.2" },
     { name = "pyyaml", specifier = "==6.0.3" },
     { name = "regex", specifier = "==2026.1.15" },
     { name = "requests", specifier = "==2.32.5" },
     { name = "requests-toolbelt", specifier = "==1.0.0" },
+    { name = "resend", specifier = ">=2.30.0" },
     { name = "retina-face", specifier = "==0.0.17" },
     { name = "safetensors", specifier = "==0.7.0" },
     { name = "scikit-learn", specifier = "==1.8.0" },
@@ -6605,6 +6609,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pytz"
+version = "2026.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ff/46/dd499ec9038423421951e4fad73051febaa13d2df82b4064f87af8b8c0c3/pytz-2026.2.tar.gz", hash = "sha256:0e60b47b29f21574376f218fe21abc009894a2321ea16c6754f3cad6eb7cdd6a", size = 320861, upload-time = "2026-05-04T01:35:29.667Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ec/dd/96da98f892250475bdf2328112d7468abdd4acc7b902b6af23f4ed958ea0/pytz-2026.2-py2.py3-none-any.whl", hash = "sha256:04156e608bee23d3792fd45c94ae47fae1036688e75032eea2e3bf0323d1f126", size = 510141, upload-time = "2026-05-04T01:35:27.408Z" },
+]
+
+[[package]]
 name = "pywin32"
 version = "311"
 source = { registry = "https://pypi.org/simple" }
@@ -6812,6 +6825,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f3/61/d7545dafb7ac2230c70d38d31cbfe4cc64f7144dc41f6e4e4b78ecd9f5bb/requests-toolbelt-1.0.0.tar.gz", hash = "sha256:7681a0a3d047012b5bdc0ee37d7f8f07ebe76ab08caeccfc3921ce23c88d5bc6", size = 206888, upload-time = "2023-05-01T04:11:33.229Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3f/51/d4db610ef29373b879047326cbf6fa98b6c1969d6f6dc423279de2b1be2c/requests_toolbelt-1.0.0-py2.py3-none-any.whl", hash = "sha256:cccfdd665f0a24fcf4726e690f65639d272bb0637b9b92dfd91a5568ccf6bd06", size = 54481, upload-time = "2023-05-01T04:11:28.427Z" },
+]
+
+[[package]]
+name = "resend"
+version = "2.30.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d5/b5/dffc1acd852c708c48626d064a54c83acf0f6c8f097efc14e3b5c3a3ad99/resend-2.30.0.tar.gz", hash = "sha256:4c3c634316ad1a1fe7c5453afdd560c7d318ba18960149a8159f3bed334eb386", size = 43201, upload-time = "2026-05-04T16:23:43.203Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/92/05/c1114a7d29e0543d815cb9b5ac0f00b6ea7bb65507d952f2896d61acdc2b/resend-2.30.0-py2.py3-none-any.whl", hash = "sha256:a8993ad6be911b039f86d5853bb2b478cc2aa66c82f1829f0b1b2e0753cf09c4", size = 68388, upload-time = "2026-05-04T16:23:42.172Z" },
 ]
 
 [[package]]

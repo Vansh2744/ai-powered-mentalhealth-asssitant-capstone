@@ -26,7 +26,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (user?.id) {
-      navigate("/chat");
+      navigate("/");
     }
   }, [user]);
 
@@ -63,7 +63,7 @@ export default function AuthPage() {
         localStorage.setItem("refreshToken", res.data.refresh_token);
 
         fetchCurrentUser();
-        navigate("/chat");
+        navigate("/");
       }
     } catch (error) {
       console.error(error);

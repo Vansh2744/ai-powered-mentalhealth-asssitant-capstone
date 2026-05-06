@@ -9,9 +9,9 @@ import {
   Sparkles,
   Menu,
   X,
+  UserIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ProfileDropdown } from "./user-profile/ProfileDropdown";
 import { useState } from "react";
 
 const fadeUp: Variants = {
@@ -177,7 +177,15 @@ export default function HomePage() {
             >
               Get Started
             </Button>
-            <ProfileDropdown />
+            <Button
+              variant="outline"
+              className="rounded-full h-10 w-10"
+              onClick={() => {
+                navigate("/profile");
+              }}
+            >
+              <UserIcon />
+            </Button>
           </div>
 
           {/* Mobile menu toggle */}
@@ -230,7 +238,15 @@ export default function HomePage() {
                 >
                   Get Started
                 </Button>
-                <ProfileDropdown />
+                <Button
+                  variant="outline"
+                  className="rounded-full h-10 w-10"
+                  onClick={() => {
+                    navigate("/profile");
+                  }}
+                >
+                  <UserIcon />
+                </Button>
               </div>
             </div>
           </motion.div>

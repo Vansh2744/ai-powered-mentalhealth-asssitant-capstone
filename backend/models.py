@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, func, ForeignKey, Text, Float, JSON
+from sqlalchemy import Column, String, DateTime, func, ForeignKey, Text, Float, JSON, Boolean
 from db import Base
 from sqlalchemy.orm import relationship
 import uuid
@@ -21,6 +21,7 @@ class User(Base, TimestampMixin):
     chat_sessions = relationship("ChatSession", back_populates="created_by", cascade="all,delete")
     emotion_logs  = relationship("EmotionLog", back_populates="user", cascade="all,delete")
     summaries     = relationship("SessionSummary", back_populates="user", cascade="all,delete")
+    reminders     = relationship("ExerciseReminder", back_populates="user", cascade="all,delete")  # ← added
 
 
 class SessionAttended(Base, TimestampMixin):
@@ -75,3 +76,14 @@ class SessionSummary(Base, TimestampMixin):
     summary_text        = Column(Text, nullable=True)
     crisis_detected     = Column(String, nullable=True)
     user                = relationship("User", back_populates="summaries")
+
+
+class ExerciseReminder(Base):
+    __tablename__  = "exercise_reminders"
+    id             = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id        = Column(UUID(as_uuid=True), ForeignKey("users.id"),  # ← clean ForeignKey, no __import__
+                            nullable=False, unique=True)
+    exercise_id    = Column(String, nullable=False)
+    reminder_time  = Column(String, nullable=False)    # "HH:MM" 24h UTC
+    enabled        = Column(Boolean, default=True, nullable=False)
+    user           = relationship("User", back_populates="reminders")

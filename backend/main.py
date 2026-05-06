@@ -16,7 +16,7 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import AIMessage, HumanMessage
 
-from models import User, SessionAttended, ChatSession, Message, EmotionLog, SessionSummary
+from models import User, SessionAttended, ChatSession, Message, EmotionLog, SessionSummary, ExerciseReminder
 from schemas import (UserCreate, UserLogin, UserLogout, UserResponse,
                      RefreshToken, ChatRequest, ChatResponse, MessageSchema)
 from db import get_db, engine, Base
@@ -28,8 +28,19 @@ from voice_recognizer import VoiceEmotionRecognizer
 from therapist import TherapistAgent
 from transcriber import Transcriber
 from exercises import EXERCISES
+
+CRISIS_HELPLINES = [
+    {"name": "iCall (India)",         "number": "9152987821",          "available": "Mon–Sat 8am–10pm"},
+    {"name": "Vandrevala Foundation", "number": "1860-2662-345",       "available": "24/7"},
+    {"name": "AASRA",                 "number": "9820466627",          "available": "24/7"},
+    {"name": "Crisis Text Line (US)", "number": "Text HOME to 741741", "available": "24/7"},
+]
+APP_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 from crisis import detect_crisis
 from summary import generate_session_summary, generate_coping_plan
+from email_service import send_email
+from email_templates import crisis_followup_email, exercise_reminder_email
+import re
 
 Base.metadata.create_all(bind=engine)
 
@@ -263,6 +274,22 @@ async def analyze(
         except Exception as e:
             print(f"[EmotionLog] {e}")
 
+    # ── Crisis email — fires immediately for tier 1 & 2 only ──────────────
+    if crisis and crisis["tier"] <= 2 and x_user_id:
+        try:
+            user_obj = db.query(User).filter(User.id == uuid.UUID(x_user_id)).first()
+            if user_obj:
+                ex = EXERCISES.get("grounding", EXERCISES["box-breathing"])
+                subj, html = crisis_followup_email(
+                    user_name=user_obj.name,
+                    helplines=CRISIS_HELPLINES,
+                    exercise=ex,
+                    app_url=APP_URL,
+                )
+                send_email(user_obj.email, subj, html)
+        except Exception as e:
+            print(f"[Email] Crisis send error: {e}")
+
     combined["therapist"]  = {"text": therapy["text"], "audio_b64": therapy["audio_b64"], "language": language}
     combined["transcript"] = transcript
     combined["language"]   = language
@@ -461,6 +488,46 @@ def get_coping_plan(user_id: UUID, db: Session = Depends(get_db)):
             ex_counts[ex] = ex_counts.get(ex, 0) + 1
     top_ex = sorted(ex_counts, key=ex_counts.get, reverse=True)[:3]
     return {"plan": plan, "exercises": [EXERCISES[e] for e in top_ex if e in EXERCISES]}
+
+# ── Exercise Reminder endpoints ──────────────────────────────────────────────
+@app.get("/reminder/{user_id}")
+def get_reminder(user_id: UUID, db: Session = Depends(get_db)):
+    r = db.query(ExerciseReminder).filter(ExerciseReminder.user_id == user_id).first()
+    if not r:
+        return {"reminder": None}
+    return {"reminder": {"exercise_id": r.exercise_id,
+                         "reminder_time": r.reminder_time, "enabled": r.enabled}}
+
+
+@app.post("/reminder/{user_id}")
+def save_reminder(user_id: UUID, body: dict, db: Session = Depends(get_db)):
+    exercise_id   = body.get("exercise_id", "box-breathing")
+    reminder_time = body.get("reminder_time", "20:00")
+    enabled       = body.get("enabled", True)
+
+    if exercise_id not in EXERCISES:
+        raise HTTPException(status_code=400, detail="Invalid exercise_id")
+    if not re.match(r'^([01]\d|2[0-3]):[0-5]\d$', reminder_time):
+        raise HTTPException(status_code=400, detail="reminder_time must be HH:MM 24h UTC")
+
+    r = db.query(ExerciseReminder).filter(ExerciseReminder.user_id == user_id).first()
+    if r:
+        r.exercise_id = exercise_id; r.reminder_time = reminder_time; r.enabled = enabled
+    else:
+        db.add(ExerciseReminder(user_id=user_id, exercise_id=exercise_id,
+                                reminder_time=reminder_time, enabled=enabled))
+    db.commit()
+    return {"status": "saved", "exercise_id": exercise_id,
+            "reminder_time": reminder_time, "enabled": enabled}
+
+
+@app.delete("/reminder/{user_id}")
+def disable_reminder(user_id: UUID, db: Session = Depends(get_db)):
+    r = db.query(ExerciseReminder).filter(ExerciseReminder.user_id == user_id).first()
+    if r:
+        r.enabled = False; db.commit()
+    return {"status": "disabled"}
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -13,7 +13,9 @@ import Exercises from "./components/exercises/Exercises";
 import SessionSummaryPage from "./components/SessionSummaryPage";
 import { useCurrentUser } from "./components/context/userContext";
 import MoodTimeline from "./components/MoodTimeline";
-import AnalyticsDashboard from "./components/history/Analyticsdashboard";
+import AnalyticsDashboard from "./components/history/AnalyticsDashboard";
+import ReminderSettings from "./components/settings/ReminderSettings";
+import { ProfileSection } from "./components/settings/ProfileSection";
 
 const App = () => {
   const { user } = useCurrentUser();
@@ -48,6 +50,14 @@ const App = () => {
           <Route
             path="/analytics"
             element={<AnalyticsDashboard userId={user?.id} />}
+          />
+          <Route
+            path="/set-reminder"
+            element={<ReminderSettings userId={user?.id} />}
+          />
+          <Route
+            path="/profile"
+            element={<ProfileSection userId={user?.id} />}
           />
         </Route>
       </Routes>
