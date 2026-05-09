@@ -11,7 +11,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://postgresql.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-*Final Year Capstone Project · B.Tech Computer Science · 2024–25*
+*Final Year Capstone Project · B.Tech Computer Science and Engineering*
 
 </div>
 
