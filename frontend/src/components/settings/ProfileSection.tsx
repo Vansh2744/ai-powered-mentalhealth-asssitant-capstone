@@ -1,4 +1,4 @@
-import { Bell, Volume2, User, Shield, HelpCircle, LogOut } from "lucide-react";
+import { Bell, User, Shield, HelpCircle, LogOut } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
 import { useCurrentUser } from "../context/userContext";
@@ -6,7 +6,6 @@ import { backendUrl } from "@/utils/backendUrl";
 
 export function ProfileSection({ userId }: { userId?: string }) {
   const [notifications, setNotifications] = useState(true);
-  const [sound, setSound] = useState(true);
   const { user, logout } = useCurrentUser();
 
   useEffect(() => {
@@ -78,19 +77,6 @@ export function ProfileSection({ userId }: { userId?: string }) {
               checked={notifications}
               onCheckedChange={toggleNotifications}
             />
-          </div>
-
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <Volume2 className="h-5 w-5 text-gray-500" />
-              <div>
-                <p className="text-sm font-medium text-gray-800">
-                  Sound Effects
-                </p>
-                <p className="text-xs text-gray-500">Play calming sounds</p>
-              </div>
-            </div>
-            <Switch checked={sound} onCheckedChange={setSound} />
           </div>
         </div>
       </div>
