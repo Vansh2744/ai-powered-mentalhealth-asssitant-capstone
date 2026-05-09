@@ -1,5 +1,3 @@
-"""email_templates.py — Crisis follow-up + Exercise reminder only."""
-
 BG, CARD, BORDER = "#0a0f1a", "#111827", "#1e293b"
 TEXT, MUTED      = "#e2e8f0", "#64748b"
 CYAN, VIOLET     = "#06b6d4", "#7c3aed"
@@ -20,7 +18,7 @@ def _wrap(title: str, preheader: str, body: str) -> str:
   <tr><td style="padding:28px 36px 20px;background:linear-gradient(135deg,#050b12,#0f172a);
                   border-bottom:1px solid {BORDER};">
     <p style="margin:0 0 4px;font-size:10px;letter-spacing:0.3em;color:{MUTED};
-               text-transform:uppercase;">Aria · AI Therapy</p>
+               text-transform:uppercase;">MindfulAI · AI Therapy</p>
     <h1 style="margin:0;font-size:22px;font-weight:900;letter-spacing:0.08em;
                color:{TEXT};text-transform:uppercase;">{title}</h1>
   </td></tr>
@@ -29,7 +27,7 @@ def _wrap(title: str, preheader: str, body: str) -> str:
   </td></tr>
   <tr><td style="padding:16px 36px;border-top:1px solid {BORDER};background:#080f1a;text-align:center;">
     <p style="margin:0;font-size:11px;color:{MUTED};">
-      Aria AI Therapy · Not a substitute for professional mental health care.
+      MindfulAI Therapy · Not a substitute for professional mental health care.
     </p>
   </td></tr>
 </table></td></tr></table></body></html>"""
@@ -91,7 +89,7 @@ def crisis_followup_email(
        <strong style="color:{TEXT};">911</strong> US).
     </p>"""
 
-    return "Checking in on you 💙 · Aria", _wrap(
+    return "Checking in on you 💙 · MindfulAI", _wrap(
         "We're Here With You",
         "We noticed your session was difficult. Support is here.",
         body,
@@ -167,6 +165,6 @@ def exercise_reminder_email(
       </a>
     </p>"""
 
-    subject  = f"⏰ Time for your {exercise.get('title','')} · Aria"
+    subject  = f"⏰ Time for your {exercise.get('title','')} · MindfulAI"
     preheader = f"{exercise.get('icon','')} Your daily {exercise.get('title','')} reminder."
     return subject, _wrap(f"Time for {exercise.get('title','')}", preheader, body)

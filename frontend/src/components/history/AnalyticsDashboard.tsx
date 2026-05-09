@@ -10,7 +10,6 @@ import {
   CartesianGrid,
 } from "recharts";
 
-/* ================= TYPES ================= */
 interface HeatmapDay {
   date: string;
   dominant: string;
@@ -42,7 +41,6 @@ interface StreakData {
   last_7: StreakDay[];
 }
 
-/* ================= CONFIG ================= */
 const EMOTION_COLOR: Record<string, string> = {
   happy: "#00ff88",
   sad: "#6699ff",
@@ -55,7 +53,6 @@ const EMOTION_COLOR: Record<string, string> = {
   calm: "#44ddcc",
 };
 
-/* ================= COMMON UI ================= */
 function Spinner() {
   return (
     <div className="flex items-center justify-center h-40 gap-2">
@@ -92,7 +89,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* ================= STREAK ================= */
 function StreakPanel({ userId }: { userId: string }) {
   const [data, setData] = useState<StreakData | null>(null);
   const [load, setLoad] = useState(true);
@@ -153,7 +149,6 @@ function StreakPanel({ userId }: { userId: string }) {
   );
 }
 
-/* ================= HEATMAP ================= */
 function HeatmapPanel({ userId }: { userId: string }) {
   const [data, setData] = useState<HeatmapDay[]>([]);
   const [load, setLoad] = useState(true);
@@ -192,7 +187,6 @@ function HeatmapPanel({ userId }: { userId: string }) {
   );
 }
 
-/* ================= ALIGNMENT ================= */
 function AlignmentPanel({ userId }: { userId: string }) {
   const [data, setData] = useState<AlignData | null>(null);
   const [load, setLoad] = useState(true);
@@ -243,7 +237,6 @@ function AlignmentPanel({ userId }: { userId: string }) {
   );
 }
 
-/* ================= MAIN ================= */
 export default function AnalyticsDashboard({ userId }: { userId?: string }) {
   return (
     <div

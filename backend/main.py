@@ -100,8 +100,6 @@ def _get_or_create_session(session_id) -> list:
         sessions.popitem(last=False)
     return sessions[session_id]
 
-
-# ── Auth ──────────────────────────────────────────────────────────────────────
 @app.post("/sign-up")
 def sign_up(user: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == user.email).first():
@@ -140,7 +138,6 @@ def current_user(authorization: str = Header(None), db: Session = Depends(get_db
 def token_refresh(token: RefreshToken, db: Session = Depends(get_db)):
     return refresh_token(token.refresh_token, db)
 
-# ── Session history ───────────────────────────────────────────────────────────
 @app.get("/session-history/{user_id}")
 def session_history(user_id: UUID, db: Session = Depends(get_db)):
     return db.query(SessionAttended).filter(SessionAttended.user_id == user_id).all()
@@ -151,7 +148,6 @@ def session(session_id: UUID, db: Session = Depends(get_db)):
     if not s: raise HTTPException(status_code=404, detail="Session not found")
     return s
 
-# ── Chat ──────────────────────────────────────────────────────────────────────
 @app.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest):
     if not request.message:
@@ -184,7 +180,6 @@ def get_chat_history(session_id: UUID, db: Session = Depends(get_db)):
     return (db.query(Message).filter(Message.session_id == session_id)
             .order_by(Message.created_at).all())
 
-# ── Emotion log helper ────────────────────────────────────────────────────────
 def save_log(transcript, voice, face, therapist_text):
     ts     = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     v_emo  = voice.get("dominant_emotion", "unknown")
@@ -202,7 +197,6 @@ def save_log(transcript, voice, face, therapist_text):
             "face":  {"emotion": f_emo, "confidence": f_conf, "emotions": (face or {}).get("emotions", {})},
             "verdict": verdict}
 
-# ── Analyze ───────────────────────────────────────────────────────────────────
 @app.post("/analyze")
 async def analyze(
     audio: UploadFile = File(...),
@@ -215,7 +209,6 @@ async def analyze(
 
     transcript, language = transcriber.transcribe(audio_bytes, mime_type)
 
-    # ── Crisis detection (before therapy response) ────────────────────────
     crisis = detect_crisis(transcript)
     if crisis and crisis["tier"] <= 2:
         return JSONResponse(content={
@@ -256,7 +249,6 @@ async def analyze(
 
     last_response["bytes"] = therapy["audio_bytes"]
 
-    # ── Save to DB ────────────────────────────────────────────────────────
     if x_user_id:
         try:
             db.add(EmotionLog(
@@ -274,7 +266,6 @@ async def analyze(
         except Exception as e:
             print(f"[EmotionLog] {e}")
 
-    # ── Crisis email — fires immediately for tier 1 & 2 only ──────────────
     if crisis and crisis["tier"] <= 2 and x_user_id:
         try:
             user_obj = db.query(User).filter(User.id == uuid.UUID(x_user_id)).first()
@@ -296,7 +287,6 @@ async def analyze(
     combined["crisis"]     = crisis
     return JSONResponse(content=combined)
 
-# ── Audio ─────────────────────────────────────────────────────────────────────
 @app.get("/playback")
 async def playback():
     if not last_audio["bytes"]: return Response(status_code=204)
@@ -322,7 +312,6 @@ async def clear_memory():
     therapist.clear_memory()
     return {"status": "cleared"}
 
-# ── WebSockets ────────────────────────────────────────────────────────────────
 @app.websocket("/ws/face")
 async def ws_face(websocket: WebSocket):
     await websocket.accept()
@@ -354,7 +343,6 @@ async def camera_stop():
 async def camera_status():
     return {"running": face_rec.is_running()}
 
-# ── Exercises ─────────────────────────────────────────────────────────────────
 @app.get("/exercises")
 async def get_exercises():
     return list(EXERCISES.values())
@@ -373,7 +361,6 @@ async def exercise_tts(request: Request):
     except Exception as e:
         print(f"[TTS] {e}"); return Response(status_code=500)
 
-# ── NEW: Session end + summary ────────────────────────────────────────────────
 @app.post("/session/end/{user_id}")
 async def end_session(user_id: UUID, db: Session = Depends(get_db)):
     cutoff = datetime.datetime.utcnow() - datetime.timedelta(minutes=60)
@@ -416,7 +403,6 @@ async def end_session(user_id: UUID, db: Session = Depends(get_db)):
         "created_at": summary.created_at.isoformat(),
     }
 
-# ── NEW: Mood timeline ────────────────────────────────────────────────────────
 @app.get("/mood/timeline/{user_id}")
 def mood_timeline(user_id: UUID, days: int = 30, db: Session = Depends(get_db)):
     cutoff = datetime.datetime.utcnow() - datetime.timedelta(days=days)
@@ -436,7 +422,6 @@ def mood_timeline(user_id: UUID, days: int = 30, db: Session = Depends(get_db)):
                              "counts": dict(Counter(emotions)), "total": len(emotions)})
     return timeline
 
-# ── NEW: Mood heatmap ─────────────────────────────────────────────────────────
 @app.get("/mood/heatmap/{user_id}")
 def mood_heatmap(user_id: UUID, db: Session = Depends(get_db)):
     logs = db.query(EmotionLog).filter(EmotionLog.user_id == user_id).all()
@@ -454,7 +439,6 @@ def mood_heatmap(user_id: UUID, db: Session = Depends(get_db)):
         }
     return result
 
-# ── NEW: Past summaries ───────────────────────────────────────────────────────
 @app.get("/summaries/{user_id}")
 def get_summaries(user_id: UUID, limit: int = 10, db: Session = Depends(get_db)):
     summaries = (db.query(SessionSummary)
@@ -467,7 +451,6 @@ def get_summaries(user_id: UUID, limit: int = 10, db: Session = Depends(get_db))
              "crisis_detected": s.crisis_detected, "created_at": s.created_at.isoformat()}
             for s in summaries]
 
-# ── NEW: Personalized coping plan ─────────────────────────────────────────────
 @app.get("/coping-plan/{user_id}")
 def get_coping_plan(user_id: UUID, db: Session = Depends(get_db)):
     summaries = (db.query(SessionSummary)
@@ -489,7 +472,6 @@ def get_coping_plan(user_id: UUID, db: Session = Depends(get_db)):
     top_ex = sorted(ex_counts, key=ex_counts.get, reverse=True)[:3]
     return {"plan": plan, "exercises": [EXERCISES[e] for e in top_ex if e in EXERCISES]}
 
-# ── Exercise Reminder endpoints ──────────────────────────────────────────────
 @app.get("/reminder/{user_id}")
 def get_reminder(user_id: UUID, db: Session = Depends(get_db)):
     r = db.query(ExerciseReminder).filter(ExerciseReminder.user_id == user_id).first()
@@ -534,7 +516,6 @@ if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
-# ── NEW: Analytics — Emotion Heatmap ─────────────────────────────────────────
 @app.get("/analytics/heatmap/{user_id}")
 def analytics_heatmap(user_id: UUID, weeks: int = 12, db: Session = Depends(get_db)):
     cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=weeks)
@@ -559,7 +540,6 @@ def analytics_heatmap(user_id: UUID, weeks: int = 12, db: Session = Depends(get_
     return result
 
 
-# ── NEW: Analytics — Voice vs Face Alignment ──────────────────────────────────
 @app.get("/analytics/alignment/{user_id}")
 def analytics_alignment(user_id: UUID, days: int = 30, db: Session = Depends(get_db)):
     cutoff = datetime.datetime.utcnow() - datetime.timedelta(days=days)
@@ -608,7 +588,6 @@ def analytics_alignment(user_id: UUID, days: int = 30, db: Session = Depends(get
     }
 
 
-# ── NEW: Analytics — Session Streak ──────────────────────────────────────────
 @app.get("/analytics/streak/{user_id}")
 def analytics_streak(user_id: UUID, db: Session = Depends(get_db)):
     logs = (
@@ -626,7 +605,6 @@ def analytics_streak(user_id: UUID, db: Session = Depends(get_db)):
     today     = datetime.datetime.utcnow().date()
     date_set  = set(date_objs)
 
-    # Current streak — count back from today
     current = 0
     check   = today
     while True:
@@ -640,7 +618,6 @@ def analytics_streak(user_id: UUID, db: Session = Depends(get_db)):
         if (today - check).days > 365:
             break
 
-    # Longest streak
     longest = run = 1 if date_objs else 0
     for i in range(1, len(date_objs)):
         if (date_objs[i] - date_objs[i-1]).days == 1:

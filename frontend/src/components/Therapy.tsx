@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CameraFeed from "../components/CameraFeed";
 import VoiceRecorder from "../components/VoiceRecorder";
 import CrisisAlert from "../components/CrisisAlert";
@@ -24,15 +24,13 @@ export default function Therapy() {
   const [endingSession, setEndingSession] = useState(false);
   const [sessionEnded, setSessionEnded] = useState(false);
 
-  // Get userId from localStorage (set during login)
-  const userId = useCurrentUser().user?.id
+  const userId = useCurrentUser().user?.id;
 
   const handleResult = (r: CombinedResult) => {
     setTherapist(r.therapist);
     setTranscript(r.transcript ?? "");
     setLanguage(r.language ?? "");
 
-    // Show crisis alert if detected
     if (r.crisis && r.crisis.tier <= 3) {
       setCrisis(r.crisis);
     }
@@ -61,12 +59,10 @@ export default function Therapy() {
           "linear-gradient(145deg, #f0f9ff 0%, #faf5ff 50%, #f0fdf4 100%)",
       }}
     >
-      {/* Crisis alert overlay */}
       {crisis && (
         <CrisisAlert crisis={crisis} onDismiss={() => setCrisis(null)} />
       )}
 
-      {/* Ambient blobs */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-cyan-300/30 blur-[100px]" />
         <div className="absolute -bottom-32 -right-32 w-[450px] h-[450px] rounded-full bg-violet-300/25 blur-[100px]" />
@@ -81,7 +77,6 @@ export default function Therapy() {
         />
       </div>
 
-      {/* Header */}
       <header className="relative w-full max-w-xl px-6 pt-10 pb-2 flex items-start justify-between">
         <div>
           <p className="text-[0.6rem] tracking-[0.3em] text-cyan-600/70 uppercase mb-1 flex items-center gap-2">
@@ -103,7 +98,6 @@ export default function Therapy() {
         </div>
 
         <div className="flex flex-col items-end gap-2 mt-2">
-          {/* Live pill */}
           <div
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[0.6rem]
             tracking-widest uppercase transition-all duration-700
@@ -118,8 +112,6 @@ export default function Therapy() {
             />
             {cameraConnected ? "Live" : "Connecting"}
           </div>
-
-          {/* End session button */}
           {cameraConnected && userId && (
             <button
               onClick={handleEndSession}
@@ -142,15 +134,10 @@ export default function Therapy() {
           )}
         </div>
       </header>
-
-      {/* Divider */}
       <div className="w-full max-w-xl px-6 mb-6">
         <div className="h-px bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent" />
       </div>
-
-      {/* Main */}
       <main className="relative w-full max-w-xl flex flex-col gap-5 px-6 pb-16">
-        {/* Camera card */}
         <div className="relative">
           <div
             className={`absolute -inset-[1px] rounded-2xl transition-all duration-700

@@ -60,7 +60,6 @@ export default function SessionSummaryPage({ userId }: Props) {
           "linear-gradient(145deg,#f8fafc 0%,#eef2ff 50%,#f8fafc 100%)",
       }}
     >
-      {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
           <p className="text-[0.6rem] tracking-[0.3em] text-violet-500/60 uppercase mb-1 flex items-center gap-2">
@@ -99,7 +98,6 @@ export default function SessionSummaryPage({ userId }: Props) {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {/* Session list */}
           <div className="flex gap-2 overflow-x-auto pb-2">
             {summaries.map((s) => (
               <button
@@ -118,8 +116,6 @@ export default function SessionSummaryPage({ userId }: Props) {
               </button>
             ))}
           </div>
-
-          {/* Detail card */}
           {selected && (
             <div
               className="rounded-2xl overflow-hidden shadow-sm"
@@ -144,15 +140,11 @@ export default function SessionSummaryPage({ userId }: Props) {
                   </p>
                 </div>
               )}
-
-              {/* Summary text */}
               <div className="px-5 py-5">
                 <p className="text-gray-700 text-sm leading-relaxed">
                   {selected.summary_text}
                 </p>
               </div>
-
-              {/* Emotions */}
               <div className="px-5 pb-4">
                 <p className="text-gray-500 text-[0.6rem] tracking-widest uppercase mb-2">
                   Emotions Detected
@@ -173,8 +165,6 @@ export default function SessionSummaryPage({ userId }: Props) {
                     ))}
                 </div>
               </div>
-
-              {/* Topics + coping */}
               <div className="grid grid-cols-2 gap-4 px-5 pb-5">
                 <div>
                   <p className="text-gray-500 text-[0.6rem] tracking-widest uppercase mb-2">
@@ -206,8 +196,6 @@ export default function SessionSummaryPage({ userId }: Props) {
                   ))}
                 </div>
               </div>
-
-              {/* Exercises */}
               {(selected.suggested_exercises || []).length > 0 && (
                 <div className="px-5 pb-5">
                   <p className="text-gray-500 text-[0.6rem] tracking-widest uppercase mb-2">

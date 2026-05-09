@@ -3,7 +3,7 @@ import { type CurrentUser } from "../../types";
 
 export const UserContext = createContext({
   user: null as CurrentUser | null,
-  loading: true,               // ✅ add this
+  loading: true, 
   fetchCurrentUser: () => {},
   clearUser: () => {},
   logout: async () => {},

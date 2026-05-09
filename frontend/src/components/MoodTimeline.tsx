@@ -108,7 +108,6 @@ export default function MoodTimeline({ userId }: Props) {
           "linear-gradient(145deg,#f8fafc 0%,#eef2ff 50%,#f8fafc 100%)",
       }}
     >
-      {/* Header */}
       <div className="mb-8">
         <p className="text-[0.6rem] tracking-[0.3em] text-cyan-600/70 uppercase mb-1 flex items-center gap-2">
           <span className="w-4 h-px bg-cyan-500/40 inline-block" />
@@ -132,8 +131,6 @@ export default function MoodTimeline({ userId }: Props) {
           </p>
         )}
       </div>
-
-      {/* Range selector */}
       <div className="flex gap-2 mb-6">
         {[7, 14, 30, 90].map((d) => (
           <button
@@ -170,7 +167,6 @@ export default function MoodTimeline({ userId }: Props) {
         </div>
       ) : (
         <>
-          {/* Chart */}
           <div
             className="rounded-2xl p-4 mb-6 shadow-sm"
             style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}
@@ -226,8 +222,6 @@ export default function MoodTimeline({ userId }: Props) {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-
-          {/* Day cards */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             {data
               .slice(-6)
@@ -259,8 +253,6 @@ export default function MoodTimeline({ userId }: Props) {
                 );
               })}
           </div>
-
-          {/* Heatmap */}
           <div
             className="rounded-2xl p-4 shadow-sm"
             style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}

@@ -141,8 +141,6 @@ export default function HomePage() {
           border: 1px solid rgba(255,255,255,0.9);
         }
       `}</style>
-
-      {/* ── NAVBAR ── */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <nav className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
@@ -155,7 +153,6 @@ export default function HomePage() {
             </span>
           </div>
 
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-7">
             <a href="#features" className="nav-link">
               Features
@@ -168,7 +165,6 @@ export default function HomePage() {
             </a>
           </div>
 
-          {/* Right */}
           <div className="hidden md:flex items-center gap-3">
             <Button
               size="sm"
@@ -188,7 +184,6 @@ export default function HomePage() {
             </Button>
           </div>
 
-          {/* Mobile menu toggle */}
           <button
             className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -197,7 +192,6 @@ export default function HomePage() {
           </button>
         </nav>
 
-        {/* Mobile menu */}
         {menuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -253,7 +247,6 @@ export default function HomePage() {
         )}
       </header>
 
-      {/* ── HERO ── */}
       <section className="relative overflow-hidden bg-gradient-to-b from-violet-50/60 via-white to-white pt-16 pb-20 sm:pt-24 sm:pb-28">
         {/* Background blobs */}
         <div className="hero-blob w-72 h-72 sm:w-96 sm:h-96 bg-violet-300 top-[-80px] left-[-80px]" />
@@ -261,7 +254,6 @@ export default function HomePage() {
         <div className="hero-blob w-48 h-48 bg-rose-200 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
 
         <div className="relative max-w-7xl mx-auto px-5 sm:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left */}
           <motion.div variants={fadeUp} initial="hidden" animate="show">
             <motion.div
               variants={fadeUp}
@@ -318,7 +310,6 @@ export default function HomePage() {
               </Button>
             </motion.div>
 
-            {/* Stats row */}
             <motion.div
               variants={fadeUp}
               custom={4}
@@ -333,7 +324,6 @@ export default function HomePage() {
             </motion.div>
           </motion.div>
 
-          {/* Right — chat preview */}
           <motion.div
             initial={{ opacity: 0, scale: 0.94, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -362,7 +352,6 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Messages */}
               <div className="space-y-4">
                 <div className="chat-bubble flex gap-2.5 max-w-[85%]">
                   <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -398,8 +387,6 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-
-              {/* Input bar */}
               <div className="mt-5 flex items-center gap-2 bg-gray-50 rounded-xl px-4 py-3 border border-gray-200">
                 <p className="text-sm text-gray-400 flex-1">
                   Type a message...
@@ -412,8 +399,6 @@ export default function HomePage() {
                 </button>
               </div>
             </div>
-
-            {/* Floating badge */}
             <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white rounded-2xl shadow-lg shadow-gray-200/80 px-3 py-2 border border-gray-100 flex items-center gap-2">
               <span className="text-lg">🧠</span>
               <div>
@@ -426,8 +411,6 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
-
-      {/* ── FEATURES ── */}
       <section id="features" className="py-20 sm:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-8">
           <motion.div
@@ -482,8 +465,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ── HOW IT WORKS ── */}
       <section className="py-20 sm:py-28 bg-gray-50/70">
         <div className="max-w-5xl mx-auto px-5 sm:px-8">
           <motion.div
@@ -551,8 +532,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ── CTA ── */}
       <section id="cta" className="py-20 sm:py-28 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-violet-700 to-teal-600" />
         <div className="hero-blob w-64 h-64 bg-white/10 top-[-40px] right-[-40px] blur-3xl" />
@@ -600,8 +579,6 @@ export default function HomePage() {
           </div>
         </motion.div>
       </section>
-
-      {/* ── FOOTER ── */}
       <footer className="bg-white border-t border-gray-100 py-8">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">

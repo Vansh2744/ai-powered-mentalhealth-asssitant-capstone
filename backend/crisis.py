@@ -1,5 +1,3 @@
-"""crisis.py — Crisis detection for therapy sessions."""
-
 CRISIS_KEYWORDS_T1 = [
     "kill myself", "end my life", "want to die", "suicidal", "suicide",
     "take my own life", "don't want to live", "no reason to live",
@@ -16,7 +14,7 @@ CRISIS_KEYWORDS_T3 = [
 ]
 
 HELPLINES = [
-    {"name": "iCall (India)",         "number": "9152987821",       "available": "Mon–Sat, 8am–10pm"},
+    {"name": "iCall (India)",         "number": "9152987821",       "available": "Mon-Sat, 8am-10pm"},
     {"name": "Vandrevala Foundation", "number": "1860-2662-345",    "available": "24/7"},
     {"name": "AASRA",                 "number": "9820466627",       "available": "24/7"},
     {"name": "Crisis Text Line (US)", "number": "Text HOME to 741741", "available": "24/7"},

@@ -1,4 +1,11 @@
-import { MessageCircle, Calendar, Clock, ArrowRight, Search, Inbox } from "lucide-react";
+import {
+  MessageCircle,
+  Calendar,
+  Clock,
+  ArrowRight,
+  Search,
+  Inbox,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -16,7 +23,7 @@ function formatDate(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffDays = Math.floor(
-    (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
   );
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
@@ -36,7 +43,6 @@ function formatTime(dateString: string): string {
   });
 }
 
-// Group chats by date label
 function groupByDate(chats: Chat[]): { label: string; items: Chat[] }[] {
   const groups: Record<string, Chat[]> = {};
   chats.forEach((chat) => {
@@ -49,23 +55,27 @@ function groupByDate(chats: Chat[]): { label: string; items: Chat[] }[] {
 
 const pastelColors = [
   { bg: "bg-violet-100", icon: "text-violet-600" },
-  { bg: "bg-teal-100",   icon: "text-teal-600"   },
-  { bg: "bg-rose-100",   icon: "text-rose-500"   },
-  { bg: "bg-amber-100",  icon: "text-amber-600"  },
-  { bg: "bg-sky-100",    icon: "text-sky-600"    },
+  { bg: "bg-teal-100", icon: "text-teal-600" },
+  { bg: "bg-rose-100", icon: "text-rose-500" },
+  { bg: "bg-amber-100", icon: "text-amber-600" },
+  { bg: "bg-sky-100", icon: "text-sky-600" },
 ];
 
 export function HistorySection() {
   const { user } = useCurrentUser();
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
-  const [firstMessages, setFirstMessages] = useState<Record<string, string>>({});
+  const [firstMessages, setFirstMessages] = useState<Record<string, string>>(
+    {},
+  );
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   const fetchMessages = async (sessionId: string) => {
     try {
-      const { data } = await axios.get(`${backendUrl}/chat/history/${sessionId}`);
+      const { data } = await axios.get(
+        `${backendUrl}/chat/history/${sessionId}`,
+      );
       setFirstMessages((prev) => ({
         ...prev,
         [sessionId]: data.length > 0 ? data[0].content : "No messages yet",
@@ -143,8 +153,6 @@ export function HistorySection() {
 
       <div className="history-page history-bg min-h-screen w-full px-4 sm:px-8 lg:px-16 py-8 sm:py-12">
         <div className="max-w-3xl mx-auto">
-
-          {/* ── HEADER ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -166,8 +174,6 @@ export function HistorySection() {
                 : "Your past conversations will appear here"}
             </p>
           </motion.div>
-
-          {/* ── SEARCH ── */}
           {chats.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -195,8 +201,6 @@ export function HistorySection() {
               </div>
             </motion.div>
           )}
-
-          {/* ── LOADING SKELETONS ── */}
           {loading && (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
@@ -204,8 +208,6 @@ export function HistorySection() {
               ))}
             </div>
           )}
-
-          {/* ── EMPTY STATE ── */}
           {!loading && chats.length === 0 && (
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
@@ -227,8 +229,6 @@ export function HistorySection() {
               </p>
             </motion.div>
           )}
-
-          {/* ── NO SEARCH RESULTS ── */}
           {!loading && chats.length > 0 && filtered.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -238,84 +238,82 @@ export function HistorySection() {
               <p className="text-gray-400 text-sm">No results for "{search}"</p>
             </motion.div>
           )}
+          {!loading &&
+            grouped.map(({ label, items }, groupIdx) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.4,
+                  delay: groupIdx * 0.06,
+                  ease: "easeOut",
+                }}
+                className="mb-7"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
+                    {label}
+                  </span>
+                  <div className="flex-1 h-px bg-gray-100" />
+                </div>
 
-          {/* ── GROUPED CHAT LIST ── */}
-          {!loading && grouped.map(({ label, items }, groupIdx) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: groupIdx * 0.06, ease: "easeOut" }}
-              className="mb-7"
-            >
-              {/* Date group label */}
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
-                  {label}
-                </span>
-                <div className="flex-1 h-px bg-gray-100" />
-              </div>
+                <div className="space-y-2.5">
+                  {items.map((chat, i) => {
+                    const color = pastelColors[i % pastelColors.length];
+                    const msg = firstMessages[chat.id];
 
-              <div className="space-y-2.5">
-                {items.map((chat, i) => {
-                  const color = pastelColors[i % pastelColors.length];
-                  const msg = firstMessages[chat.id];
-
-                  return (
-                    <button
-                      key={chat.id}
-                      onClick={() => navigate(`/chat-history/${chat.id}`)}
-                      className={cn(
-                        "chat-card w-full flex items-center gap-4 p-4 sm:p-5 rounded-2xl",
-                        "bg-white text-left group"
-                      )}
-                    >
-                      {/* Icon */}
-                      <div
+                    return (
+                      <button
+                        key={chat.id}
+                        onClick={() => navigate(`/chat-history/${chat.id}`)}
                         className={cn(
-                          "w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0",
-                          color.bg
+                          "chat-card w-full flex items-center gap-4 p-4 sm:p-5 rounded-2xl",
+                          "bg-white text-left group",
                         )}
                       >
-                        <MessageCircle size={18} className={color.icon} />
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-800 truncate leading-snug">
-                          {msg === undefined ? (
-                            <span className="text-gray-300 italic">Loading…</span>
-                          ) : (
-                            msg
+                        <div
+                          className={cn(
+                            "w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0",
+                            color.bg,
                           )}
-                        </p>
-                        <div className="flex items-center gap-3 mt-1.5">
-                          <span className="flex items-center gap-1 text-[11px] text-gray-400">
-                            <Calendar size={10} />
-                            {formatDate(chat.created_at)}
-                          </span>
-                          <span className="text-gray-200">·</span>
-                          <span className="flex items-center gap-1 text-[11px] text-gray-400">
-                            <Clock size={10} />
-                            {formatTime(chat.created_at)}
-                          </span>
+                        >
+                          <MessageCircle size={18} className={color.icon} />
                         </div>
-                      </div>
-
-                      {/* Arrow */}
-                      <div className="flex-shrink-0 w-7 h-7 rounded-xl bg-gray-50 group-hover:bg-violet-50 flex items-center justify-center transition-colors">
-                        <ArrowRight
-                          size={13}
-                          className="text-gray-300 group-hover:text-violet-500 group-hover:translate-x-0.5 transition-all"
-                        />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          ))}
-
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-800 truncate leading-snug">
+                            {msg === undefined ? (
+                              <span className="text-gray-300 italic">
+                                Loading…
+                              </span>
+                            ) : (
+                              msg
+                            )}
+                          </p>
+                          <div className="flex items-center gap-3 mt-1.5">
+                            <span className="flex items-center gap-1 text-[11px] text-gray-400">
+                              <Calendar size={10} />
+                              {formatDate(chat.created_at)}
+                            </span>
+                            <span className="text-gray-200">·</span>
+                            <span className="flex items-center gap-1 text-[11px] text-gray-400">
+                              <Clock size={10} />
+                              {formatTime(chat.created_at)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0 w-7 h-7 rounded-xl bg-gray-50 group-hover:bg-violet-50 flex items-center justify-center transition-colors">
+                          <ArrowRight
+                            size={13}
+                            className="text-gray-300 group-hover:text-violet-500 group-hover:translate-x-0.5 transition-all"
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            ))}
         </div>
       </div>
     </>

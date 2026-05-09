@@ -48,7 +48,7 @@ export function ChatSection() {
 
       if (!activeSessionId) {
         const sessionRes = await axios.post(
-          `${backendUrl}/chat/session/${user?.id}`
+          `${backendUrl}/chat/session/${user?.id}`,
         );
         activeSessionId = sessionRes.data.session_id;
         setSessionId(activeSessionId);
@@ -159,11 +159,8 @@ export function ChatSection() {
 
       <div className="chat-page flex flex-col h-screen w-full chat-bg">
         <div className="max-w-3xl mx-auto w-full flex flex-col h-full">
-
-          {/* ── HEADER ── */}
           <div className="header-glass border-b border-gray-100 px-4 sm:px-6 py-3.5 sticky top-0 z-10">
             <div className="flex items-center justify-between">
-              {/* Left: avatar + info */}
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500 to-teal-500 flex items-center justify-center shadow-md shadow-violet-200">
@@ -184,13 +181,13 @@ export function ChatSection() {
                   </p>
                 </div>
               </div>
-
-              {/* Right: session info + new chat */}
               <div className="flex items-center gap-2">
                 {sessionId && (
                   <div className="hidden sm:flex session-badge rounded-xl px-3 py-1.5 items-center gap-1.5">
                     <Clock size={11} className="text-violet-500" />
-                    <span className="text-[11px] text-violet-600 font-medium">{timeStr}</span>
+                    <span className="text-[11px] text-violet-600 font-medium">
+                      {timeStr}
+                    </span>
                   </div>
                 )}
                 <Button
@@ -204,8 +201,6 @@ export function ChatSection() {
               </div>
             </div>
           </div>
-
-          {/* ── MESSAGES ── */}
           <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-1">
             {/* Session start marker */}
             <div className="flex items-center gap-3 mb-6">
@@ -229,8 +224,6 @@ export function ChatSection() {
                 </motion.div>
               ))}
             </AnimatePresence>
-
-            {/* Typing indicator */}
             {isLoading && (
               <motion.div
                 initial={{ opacity: 0, y: 6 }}
@@ -252,15 +245,15 @@ export function ChatSection() {
 
             <div ref={messagesEndRef} />
           </div>
-
-          {/* ── INPUT ── */}
           <div className="input-glass border-t border-gray-100 px-4 sm:px-6 py-4">
-            <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+            <ChatInput
+              onSendMessage={handleSendMessage}
+              isLoading={isLoading}
+            />
             <p className="text-center text-[10px] text-gray-300 mt-2">
               MindfulAI is not a substitute for professional mental health care.
             </p>
           </div>
-
         </div>
       </div>
     </>

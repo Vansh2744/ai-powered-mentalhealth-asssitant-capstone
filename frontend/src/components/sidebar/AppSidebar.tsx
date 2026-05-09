@@ -8,6 +8,7 @@ import {
   Clock,
   ChartNoAxesCombined,
   ChartSpline,
+  Brain,
 } from "lucide-react";
 
 import {
@@ -62,6 +63,11 @@ const items = [
     title: "Analytics Dashboard",
     url: "/analytics/",
     icon: ChartSpline,
+  },
+  {
+    title: "Coping Plan",
+    url: "/coping-plan/",
+    icon: Brain,
   },
 ];
 

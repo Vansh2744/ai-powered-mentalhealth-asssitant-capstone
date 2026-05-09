@@ -14,7 +14,7 @@ try:
 except ImportError:
     FER_OK = False
 
-MIN_ANALYSE_INTERVAL = 1.5   # seconds between face analyses
+MIN_ANALYSE_INTERVAL = 1.5
 
 
 class FaceEmotionRecognizer:

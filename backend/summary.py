@@ -1,5 +1,3 @@
-"""summary.py — Session summary + personalized coping plan generator."""
-
 import os, json
 from groq import Groq
 from exercises import EXERCISES

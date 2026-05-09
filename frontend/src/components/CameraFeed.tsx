@@ -12,9 +12,7 @@ const EMOTION_COLOR: Record<string, string> = {
   calm: "#44ddcc",
 };
 
-const WS_URL =
-  // import.meta.env.VITE_WS_URL ?? "wss://mindful-ai-0ze3.onrender.com";
-  import.meta.env.VITE_WS_URL ?? "ws://localhost:8000";
+const WS_URL = import.meta.env.VITE_WS_URL ?? "ws://localhost:8000";
 const FPS = 5;
 
 interface Props {

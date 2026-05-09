@@ -1,6 +1,5 @@
+import { backendUrl } from "@/utils/backendUrl";
 import { useEffect, useState } from "react";
-
-const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 interface Exercise {
   id: string;
@@ -12,7 +11,7 @@ interface Exercise {
 }
 interface Reminder {
   exercise_id: string;
-  reminder_time: string; // "HH:MM"
+  reminder_time: string;
   enabled: boolean;
 }
 
@@ -30,12 +29,11 @@ export default function ReminderSettings({ userId }: Props) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Load exercises + existing reminder
   useEffect(() => {
     if (!userId) return;
     Promise.all([
-      fetch(`${API}/exercises`).then((r) => r.json()),
-      fetch(`${API}/reminder/${userId}`).then((r) => r.json()),
+      fetch(`${backendUrl}/exercises`).then((r) => r.json()),
+      fetch(`${backendUrl}/reminder/${userId}`).then((r) => r.json()),
     ])
       .then(([exList, reminderData]) => {
         setExercises(exList);
@@ -43,7 +41,6 @@ export default function ReminderSettings({ userId }: Props) {
           const r: Reminder = reminderData.reminder;
           setReminder(r);
           setExId(r.exercise_id);
-          // Convert stored UTC time → local for the <input type="time">
           setTime(utcToLocal(r.reminder_time));
           setEnabled(r.enabled);
         }
@@ -56,8 +53,8 @@ export default function ReminderSettings({ userId }: Props) {
     setSaving(true);
     setSaved(false);
     try {
-      const utcTime = localToUtc(time); // always store as UTC in DB
-      await fetch(`${API}/reminder/${userId}`, {
+      const utcTime = localToUtc(time);
+      await fetch(`${backendUrl}/reminder/${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -78,7 +75,6 @@ export default function ReminderSettings({ userId }: Props) {
 
   const selectedEx = exercises.find((e) => e.id === exId);
 
-  // Convert local HH:MM → UTC HH:MM (for storing in DB)
   const localToUtc = (hhmm: string): string => {
     const [h, m] = hhmm.split(":").map(Number);
     const d = new Date();
@@ -90,7 +86,6 @@ export default function ReminderSettings({ userId }: Props) {
     );
   };
 
-  // Convert UTC HH:MM → local HH:MM (for displaying to user)
   const utcToLocal = (hhmm: string): string => {
     const [h, m] = hhmm.split(":").map(Number);
     const d = new Date();
@@ -102,15 +97,12 @@ export default function ReminderSettings({ userId }: Props) {
     );
   };
 
-  // Format HH:MM for display (12h with AM/PM)
   const formatTime = (hhmm: string): string => {
     const [h, m] = hhmm.split(":").map(Number);
     const d = new Date();
     d.setHours(h, m, 0, 0);
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
-
-  // ONLY colors changed — structure untouched
 
   return (
     <div
@@ -120,13 +112,10 @@ export default function ReminderSettings({ userId }: Props) {
           "linear-gradient(145deg,#f8fafc 0%,#eef2f7 50%,#f8fafc 100%)",
       }}
     >
-      {/* Ambient blobs */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
         <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-cyan-200/40 blur-[100px]" />
         <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-violet-200/40 blur-[100px]" />
       </div>
-
-      {/* Header */}
       <div className="mb-8">
         <p className="text-[0.6rem] tracking-[0.3em] text-cyan-600 uppercase mb-1 flex items-center gap-2">
           <span className="w-4 h-px bg-cyan-500 inline-block" />
@@ -161,7 +150,6 @@ export default function ReminderSettings({ userId }: Props) {
         </div>
       ) : (
         <div className="flex flex-col gap-5">
-          {/* STATUS */}
           {reminder && (
             <div
               className="rounded-2xl px-5 py-4 flex items-center gap-3"
@@ -190,8 +178,6 @@ export default function ReminderSettings({ userId }: Props) {
               </div>
             </div>
           )}
-
-          {/* EXERCISE PICKER */}
           <div
             className="rounded-2xl overflow-hidden"
             style={{
@@ -244,8 +230,6 @@ export default function ReminderSettings({ userId }: Props) {
               ))}
             </div>
           </div>
-
-          {/* TIME PICKER */}
           <div
             className="rounded-2xl px-5 py-4"
             style={{
@@ -268,8 +252,6 @@ export default function ReminderSettings({ userId }: Props) {
               }}
             />
           </div>
-
-          {/* ✅ PREVIEW (RESTORED) */}
           {selectedEx && (
             <div
               className="rounded-2xl px-5 py-4"
@@ -298,8 +280,6 @@ export default function ReminderSettings({ userId }: Props) {
               </p>
             </div>
           )}
-
-          {/* BUTTON */}
           <button
             onClick={handleSave}
             className="py-3 rounded-2xl font-bold text-white"

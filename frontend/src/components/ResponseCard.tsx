@@ -10,7 +10,7 @@ export function ResponseCard({
   therapist: TherapistResult | null;
   loading: boolean;
   transcript: string;
-  language: string; // ← add
+  language: string;
 }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -84,9 +84,8 @@ export function ResponseCard({
           <span className="font-head font-bold text-xs tracking-widest text-cyan-400">
             THERAPIST
           </span>
-          {/* Language badge — only shown when non-English */}
           {language &&
-            language !== "en" && ( // ← add
+            language !== "en" && (
               <span
                 className="text-[0.6rem] px-2 py-0.5 rounded-full
               bg-purple-500/20 text-purple-400 border border-purple-500/30 tracking-wider"

@@ -52,7 +52,5 @@ def run_reminder_job():
     print("[Cron] Done.")
 
 
-import time
-
 if __name__ == "__main__":
     run_reminder_job()

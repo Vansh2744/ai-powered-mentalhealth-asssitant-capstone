@@ -88,8 +88,6 @@ function ExerciseCard({
             {exercise.duration}
           </span>
         </div>
-
-        {/* Tags */}
         <div className="flex flex-wrap gap-1.5 mt-3 pl-0">
           {exercise.target.map((t) => (
             <span
@@ -106,8 +104,6 @@ function ExerciseCard({
           ))}
         </div>
       </div>
-
-      {/* Arrow */}
       <div
         className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300
         group-hover:translate-x-1 transition-transform duration-200"
@@ -117,8 +113,6 @@ function ExerciseCard({
     </button>
   );
 }
-
-// ── Breathing circle animation ────────────────────────────
 function BreathCircle({
   phase,
   progress,
@@ -138,12 +132,10 @@ function BreathCircle({
 
   return (
     <div className="relative flex items-center justify-center w-52 h-52 mx-auto">
-      {/* Outer ring */}
       <div
         className="absolute inset-0 rounded-full border-2 opacity-20"
         style={{ borderColor: color }}
       />
-      {/* Progress ring */}
       <svg className="absolute inset-0 w-full h-full -rotate-90">
         <circle
           cx="104"
@@ -168,7 +160,6 @@ function BreathCircle({
           style={{ transition: "stroke-dashoffset 0.1s linear" }}
         />
       </svg>
-      {/* Main circle */}
       <div
         className="rounded-full transition-transform duration-300 ease-in-out
         flex items-center justify-center"
@@ -189,8 +180,6 @@ function BreathCircle({
     </div>
   );
 }
-
-// ── Active exercise player ────────────────────────────────
 function ExercisePlayer({
   exercise,
   onClose,
@@ -214,12 +203,10 @@ function ExercisePlayer({
   const totalSteps = exercise.steps.length * exercise.rounds;
   const doneSteps = roundIndex * exercise.steps.length + stepIndex;
 
-  // ── Sync pausedRef ────────────────────────────────────
   useEffect(() => {
     pausedRef.current = paused;
   }, [paused]);
 
-  // ── Wait helper ───────────────────────────────────────
   const wait = useCallback(
     (ms: number) =>
       new Promise<void>((resolve) => {
@@ -245,7 +232,6 @@ function ExercisePlayer({
     [],
   );
 
-  // ── Countdown helper ──────────────────────────────────
   const countdown = useCallback(
     (seconds: number, onTick: (p: number, t: number) => void) =>
       new Promise<void>((resolve) => {
@@ -275,7 +261,6 @@ function ExercisePlayer({
     [],
   );
 
-  // ── Main exercise flow ────────────────────────────────
   useEffect(() => {
     stopRef.current = false;
     pausedRef.current = false;
@@ -289,7 +274,6 @@ function ExercisePlayer({
 
       setStage("running");
 
-      // Rounds × steps
       for (let r = 0; r < exercise.rounds; r++) {
         if (stopRef.current) return;
         setRoundIndex(r);
@@ -300,11 +284,9 @@ function ExercisePlayer({
           setProgress(0);
           setTimeLeft(step.duration);
 
-          // Speak instruction
           await speak(step.instruction);
           if (stopRef.current) return;
 
-          // Countdown
           await countdown(step.duration, (p, t) => {
             setProgress(p);
             setTimeLeft(t);
@@ -312,7 +294,6 @@ function ExercisePlayer({
         }
       }
 
-      // Outro
       if (stopRef.current) return;
       setStage("outro");
       await speak(exercise.outro);
@@ -354,7 +335,6 @@ function ExercisePlayer({
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => {
@@ -504,7 +484,6 @@ export default function Exercises() {
           "linear-gradient(145deg, #f0f9ff 0%, #faf5ff 50%, #f0fdf4 100%)",
       }}
     >
-      {/* Ambient blobs */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div
           className="absolute -top-32 -left-32 w-96 h-96 rounded-full
@@ -526,7 +505,6 @@ export default function Exercises() {
 
       <div className="relative w-full max-w-xl px-6 py-10">
         {activeExercise ? (
-          /* ── Player ── */
           <div
             className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl
             border border-white/90"
@@ -537,9 +515,7 @@ export default function Exercises() {
             />
           </div>
         ) : (
-          /* ── Exercise list ── */
           <>
-            {/* Header */}
             <div className="mb-8">
               <p
                 className="text-[0.6rem] tracking-[0.3em] text-cyan-600/70 uppercase mb-1
@@ -578,8 +554,6 @@ export default function Exercises() {
                 </button>
               ))}
             </div>
-
-            {/* Cards */}
             {loading ? (
               <div className="flex flex-col gap-3">
                 {[0, 1, 2].map((i) => (
