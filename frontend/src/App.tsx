@@ -62,7 +62,7 @@ const App = () => {
             element={
               <CopingPlan
                 userId={user?.id}
-                onStartExercise={(ex) => navigate("/exercise")}
+                onStartExercise={() => navigate("/exercise")}
               />
             }
           />
