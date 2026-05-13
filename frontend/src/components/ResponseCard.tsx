@@ -127,14 +127,14 @@ export function ResponseCard({
         </div>
       )}
 
-      <p className="text-slate-200 text-sm leading-relaxed">{therapist.text}</p>
+      <p className="text-slate-400 text-sm leading-relaxed">{therapist.text}</p>
 
       {transcript && (
         <div className="border-t border-white/5 pt-3">
           <p className="text-[0.65rem] text-slate-600 tracking-widest uppercase mb-1">
             You said
           </p>
-          <p className="text-slate-500 text-xs italic">"{transcript}"</p>
+          <p className="text-slate-700 text-xs italic">"{transcript}"</p>
         </div>
       )}
     </div>

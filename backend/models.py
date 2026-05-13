@@ -81,9 +81,8 @@ class SessionSummary(Base, TimestampMixin):
 class ExerciseReminder(Base):
     __tablename__  = "exercise_reminders"
     id             = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id        = Column(UUID(as_uuid=True), ForeignKey("users.id"),  # ← clean ForeignKey, no __import__
-                            nullable=False, unique=True)
+    user_id        = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, unique=True)
     exercise_id    = Column(String, nullable=False)
-    reminder_time  = Column(String, nullable=False)    # "HH:MM" 24h UTC
+    reminder_time  = Column(String, nullable=False)
     enabled        = Column(Boolean, default=True, nullable=False)
     user           = relationship("User", back_populates="reminders")

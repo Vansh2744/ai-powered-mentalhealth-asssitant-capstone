@@ -7,6 +7,7 @@ import "../index.css";
 import { ResponseCard } from "../components/ResponseCard";
 import { useCurrentUser } from "./context/userContext";
 import { backendUrl } from "@/utils/backendUrl";
+import { useNavigate } from "react-router-dom";
 
 interface CrisisData {
   tier: number;
@@ -25,6 +26,7 @@ export default function Therapy() {
   const [sessionEnded, setSessionEnded] = useState(false);
 
   const userId = useCurrentUser().user?.id;
+  const navigate = useNavigate();
 
   const handleResult = (r: CombinedResult) => {
     setTherapist(r.therapist);
@@ -43,6 +45,7 @@ export default function Therapy() {
       await fetch(`${backendUrl}/session/end/${userId}`, { method: "POST" });
       setSessionEnded(true);
       setTimeout(() => setSessionEnded(false), 3000);
+      navigate("/session-summary");
     } catch (e) {
       console.error(e);
     } finally {

@@ -55,11 +55,6 @@ const items = [
     icon: PhoneCall,
   },
   {
-    title: "Mood Timeline",
-    url: "/moodtimeline/",
-    icon: ChartNoAxesCombined,
-  },
-  {
     title: "Analytics Dashboard",
     url: "/analytics/",
     icon: ChartSpline,

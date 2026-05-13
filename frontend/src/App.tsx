@@ -42,10 +42,6 @@ const App = () => {
             element={<SessionSummaryPage userId={user?.id} />}
           />
           <Route
-            path="/moodtimeline"
-            element={<MoodTimeline userId={user?.id} />}
-          />
-          <Route
             path="/analytics"
             element={<AnalyticsDashboard userId={user?.id} />}
           />

@@ -1,4 +1,4 @@
-import os, io, csv, json, asyncio, base64, datetime, uuid
+import os, io, csv, json, asyncio, datetime, uuid
 from collections import OrderedDict, Counter
 from contextlib import asynccontextmanager
 from uuid import UUID
@@ -22,7 +22,7 @@ from schemas import (UserCreate, UserLogin, UserLogout, UserResponse,
 from db import get_db, engine, Base
 from auth import (get_password_hash, authenticate_user, get_current_user,
                   create_access_token, create_refresh_token, refresh_token)
-from system_prompt import conversation_prompt, SYSTEM_PROMPT
+from system_prompt import conversation_prompt
 from face_recognizer import FaceEmotionRecognizer
 from voice_recognizer import VoiceEmotionRecognizer
 from therapist import TherapistAgent
@@ -39,7 +39,7 @@ APP_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 from crisis import detect_crisis
 from summary import generate_session_summary, generate_coping_plan
 from email_service import send_email
-from email_templates import crisis_followup_email, exercise_reminder_email
+from email_templates import crisis_followup_email
 import re
 
 Base.metadata.create_all(bind=engine)
@@ -390,7 +390,9 @@ async def end_session(user_id: UUID, db: Session = Depends(get_db)):
         summary_text=data.get("summary_text", ""),
         crisis_detected=crisis_detected,
     )
-    db.add(summary); db.commit(); db.refresh(summary)
+    db.add(summary)
+    db.commit()
+    db.refresh(summary)
 
     return {
         "id": str(summary.id),

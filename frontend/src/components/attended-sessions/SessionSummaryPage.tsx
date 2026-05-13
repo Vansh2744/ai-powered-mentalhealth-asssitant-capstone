@@ -124,7 +124,6 @@ export default function SessionSummaryPage({ userId }: Props) {
                 background: "#ffffff",
               }}
             >
-              {/* Crisis banner */}
               {selected.crisis_detected && (
                 <div
                   className="px-5 py-3 flex items-center gap-2"
