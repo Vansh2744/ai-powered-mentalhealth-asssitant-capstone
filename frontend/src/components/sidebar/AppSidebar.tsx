@@ -6,7 +6,6 @@ import {
   Heart,
   PhoneCall,
   Clock,
-  ChartNoAxesCombined,
   ChartSpline,
   Brain,
 } from "lucide-react";

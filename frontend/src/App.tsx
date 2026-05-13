@@ -10,7 +10,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Exercises from "./components/exercises/Exercises";
 import SessionSummaryPage from "./components/attended-sessions/SessionSummaryPage";
 import { useCurrentUser } from "./components/context/userContext";
-import MoodTimeline from "./components/MoodTimeline";
 import AnalyticsDashboard from "./components/history/AnalyticsDashboard";
 import ReminderSettings from "./components/settings/ReminderSettings";
 import { ProfileSection } from "./components/settings/ProfileSection";
