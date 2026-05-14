@@ -9,7 +9,6 @@ import {
   ChartSpline,
   Brain,
 } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,

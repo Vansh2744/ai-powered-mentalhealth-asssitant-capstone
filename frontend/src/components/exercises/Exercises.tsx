@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { Exercise, ExerciseStep } from "../../types";
 import { backendUrl } from "@/utils/backendUrl";
+import { useNavigate } from "react-router-dom";
 
 async function speak(text: string, lang = "en"): Promise<void> {
   try {
@@ -266,7 +267,6 @@ function ExercisePlayer({
     pausedRef.current = false;
 
     const run = async () => {
-      // Intro
       setStage("intro");
       await speak(exercise.intro);
       await wait(500);
@@ -340,6 +340,8 @@ function ExercisePlayer({
           onClick={() => {
             stopRef.current = true;
             onClose();
+            const navigate = useNavigate();
+            navigate("/exercise");
           }}
           className="text-slate-400 hover:text-slate-600 transition-colors text-sm
             flex items-center gap-1.5"

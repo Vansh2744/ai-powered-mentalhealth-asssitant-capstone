@@ -1,32 +1,11 @@
 import { backendUrl } from "@/utils/backendUrl";
 import { useEffect, useState } from "react";
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
 
 interface HeatmapDay {
   date: string;
   dominant: string;
   counts: Record<string, number>;
   total: number;
-}
-interface AlignDay {
-  date: string;
-  match_pct: number;
-  total: number;
-}
-interface AlignData {
-  overall_match_pct: number | null;
-  total_analyzed: number;
-  total_matched: number;
-  daily: AlignDay[];
-  mismatch_breakdown: Record<string, number>;
 }
 interface StreakDay {
   date: string;
@@ -187,56 +166,6 @@ function HeatmapPanel({ userId }: { userId: string }) {
   );
 }
 
-function AlignmentPanel({ userId }: { userId: string }) {
-  const [data, setData] = useState<AlignData | null>(null);
-  const [load, setLoad] = useState(true);
-
-  useEffect(() => {
-    fetch(`${backendUrl}/analytics/alignment/${userId}`)
-      .then((r) => r.json())
-      .then(setData)
-      .finally(() => setLoad(false));
-  }, [userId]);
-
-  if (load)
-    return (
-      <Card>
-        <Spinner />
-      </Card>
-    );
-  if (!data) return null;
-
-  return (
-    <Card>
-      <SectionLabel>Alignment</SectionLabel>
-
-      <p className="text-3xl font-bold text-indigo-600">
-        {data.overall_match_pct ?? 0}%
-      </p>
-
-      <ResponsiveContainer width="100%" height={120}>
-        <LineChart data={data.daily}>
-          <CartesianGrid stroke="#e5e7eb" />
-          <XAxis dataKey="date" tick={{ fill: "#6b7280", fontSize: 10 }} />
-          <YAxis domain={[0, 100]} tick={{ fill: "#6b7280", fontSize: 10 }} />
-          <Tooltip
-            contentStyle={{
-              background: "#ffffff",
-              border: "1px solid #e5e7eb",
-            }}
-          />
-          <Line
-            type="monotone"
-            dataKey="match_pct"
-            stroke="#6366f1"
-            strokeWidth={2}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </Card>
-  );
-}
-
 export default function AnalyticsDashboard({ userId }: { userId?: string }) {
   return (
     <div
@@ -254,7 +183,6 @@ export default function AnalyticsDashboard({ userId }: { userId?: string }) {
         <div className="flex flex-col gap-5">
           <StreakPanel userId={userId} />
           <HeatmapPanel userId={userId} />
-          <AlignmentPanel userId={userId} />
         </div>
       )}
     </div>
